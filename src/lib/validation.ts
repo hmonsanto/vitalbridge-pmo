@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isHttpUrl } from "@/lib/url";
 
 const text = (max = 200) => z.string().trim().min(1).max(max);
 
@@ -20,7 +21,11 @@ export const deliverableSchema = z.object({
   phase: z.number().int().min(1).max(6),
   status: z.enum(["not_started", "in_progress", "completed", "blocked"]),
   owner: z.string().trim().max(80).optional(),
-  doc_url: z.string().url().optional(),
+  doc_url: z
+    .string()
+    .url()
+    .refine(isHttpUrl, "Only http(s) links are allowed")
+    .optional(),
   remarks: z.string().trim().max(500).optional(),
 });
 

@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { projectSchema, riskSchema, baselineEntrySchema } from "@/lib/validation";
+import { projectSchema, riskSchema, baselineEntrySchema, deliverableSchema } from "@/lib/validation";
 
 describe("projectSchema", () => {
   test("rejects scenario D", () => {
@@ -74,5 +74,15 @@ describe("meetingSchema", () => {
   });
   test("accepts an ISO start time", () => {
     expect(meetingSchema.safeParse({ title: "Sync", starts_at: "2027-01-05T10:00:00.000Z" }).success).toBe(true);
+  });
+});
+
+describe("deliverableSchema doc_url", () => {
+  const base = { name: "Doc", phase: 1, status: "not_started" as const };
+  test("rejects a javascript: URL", () => {
+    expect(deliverableSchema.safeParse({ ...base, doc_url: "javascript:alert(1)" }).success).toBe(false);
+  });
+  test("accepts an https URL", () => {
+    expect(deliverableSchema.safeParse({ ...base, doc_url: "https://example.com/doc.docx" }).success).toBe(true);
   });
 });

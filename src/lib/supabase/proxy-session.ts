@@ -42,9 +42,11 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   if (isLogin) return redirect("/");
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role === "owner" && path !== "/mfa") {
+  if (path !== "/mfa") {
+    // Owners always need TOTP; anyone who enrolled a factor must complete it (aal2).
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (aal?.currentLevel !== "aal2") return redirect("/mfa");
+    const mfaRequired = profile?.role === "owner" || aal?.nextLevel === "aal2";
+    if (mfaRequired && aal?.currentLevel !== "aal2") return redirect("/mfa");
   }
   return response;
 }

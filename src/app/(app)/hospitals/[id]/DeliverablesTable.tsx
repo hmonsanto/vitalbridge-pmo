@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/Badge";
+import { isHttpUrl } from "@/lib/url";
 import { StatusSelect } from "./StatusSelect";
 
 export type DeliverableRow = {
@@ -48,7 +49,7 @@ export function DeliverablesTable({ projectId, rows, editable }: { projectId: st
                 )}
               </td>
               <td className="pr-3">
-                {r.doc_url ? (
+                {r.doc_url && isHttpUrl(r.doc_url) ? (
                   <a href={r.doc_url} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] underline">
                     Open
                   </a>

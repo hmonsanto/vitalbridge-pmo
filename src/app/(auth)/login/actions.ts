@@ -27,9 +27,11 @@ export async function signIn(_prev: LoginState, formData: FormData): Promise<Log
 
   await recordAudit("sign_in");
 
-  // Owners must pass TOTP; send them straight to /mfa so the URL matches the page.
+  // Owners and anyone with an enrolled factor must pass TOTP; go straight to /mfa so the URL matches the page.
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
-  redirect(profile?.role === "owner" ? "/mfa" : "/");
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  const mfaRequired = profile?.role === "owner" || aal?.nextLevel === "aal2";
+  redirect(mfaRequired ? "/mfa" : "/");
 }
 
 export async function signOut() {

@@ -6,7 +6,7 @@ Evidence for every item in section 8.3 of the design (`docs/superpowers/specs/20
 |---|---|---|
 | 1 | Email + password via Supabase Auth, no public sign-up | `supabase/config.toml` `enable_signup = false`. Test: `e2e/security.spec.ts` "public sign-up is disabled at the auth API" (asserts `signup_disabled`); `e2e/auth.spec.ts` "there is no sign-up route" |
 | 2 | Accounts by invitation only | No sign-up route or form exists in `src/app`; process in `docs/deployment.md` section 2 |
-| 3 | TOTP MFA required for the owner | `src/lib/supabase/proxy-session.ts` redirects an owner without `aal2` to `/mfa`. Test: `e2e/auth.spec.ts` "owner without aal2 is redirected to /mfa"; `e2e/global-setup.ts` completes a real TOTP enrollment |
+| 3 | TOTP MFA required for the owner, and for any user who enrolls a factor | `src/lib/supabase/proxy-session.ts` redirects an owner without `aal2` to `/mfa`. Test: `e2e/auth.spec.ts` "owner without aal2 is redirected to /mfa"; `e2e/auth.spec.ts` "a viewer who enrolled TOTP must pass MFA too"; `e2e/global-setup.ts` completes a real TOTP enrollment |
 | 4 | Row Level Security on every table: owner full, viewer read-only, anonymous nothing | `supabase/migrations/0002_rls.sql`. Tests: `supabase/tests/rls.test.sql` (16 assertions), `e2e/security.spec.ts` "anonymous API access returns no rows" and "a viewer cannot write through the API directly" |
 | 5 | A viewer cannot promote themselves; nobody changes roles through the API | `profiles` has no write policies. Tests: `rls.test.sql` (two assertions), `e2e/security.spec.ts` |
 | 6 | httpOnly secure session cookies | `src/lib/supabase/cookie-options.ts` (`secure` in production, `sameSite: lax`); no browser Supabase client exists. Test: `e2e/security.spec.ts` "session cookies are httpOnly" |
@@ -17,7 +17,8 @@ Evidence for every item in section 8.3 of the design (`docs/superpowers/specs/20
 | 11 | Audit log of writes and sign-ins | `src/lib/audit.ts`, called from every write action. Test: `e2e/auth.spec.ts` "sign-in writes an audit entry for that user". Only the owner can read it (`rls.test.sql`) |
 | 12 | HTTPS only | `Strict-Transport-Security` header; Vercel serves HTTPS only (`docs/deployment.md`) |
 | 13 | Backup and restore procedure | `docs/deployment.md` section 5 |
-| 14 | Dependency audit | `npm audit`: 0 high or critical; 0 in production dependencies; 7 moderate findings, all in the ESLint/TypeScript dev toolchain (not shipped) |
+| 14 | Document links cannot carry script URLs | `src/lib/url.ts` (`isHttpUrl`) enforced in `deliverableSchema` and again when rendering. Test: `tests/validation.test.ts` "deliverableSchema doc_url" |
+| 15 | Dependency audit | `npm audit`: 0 high or critical; 0 in production dependencies; 7 moderate findings, all in the ESLint/TypeScript dev toolchain (not shipped) |
 
 ## Known limitations (accepted for version 1)
 

@@ -54,3 +54,27 @@ test("sign-in writes an audit entry for that user", async ({ page }) => {
   const { data } = await admin.from("audit_log").select("action").eq("actor", viewer.id).eq("action", "sign_in");
   expect(data?.length).toBeGreaterThanOrEqual(1);
 });
+
+import * as OTPAuth from "otpauth";
+
+test("a viewer who enrolled TOTP must pass MFA too", async ({ page }) => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const email = `viewer-mfa-${Date.now()}@test.local`;
+  const admin = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
+  const { error } = await admin.auth.admin.createUser({ email, password: process.env.E2E_PASSWORD!, email_confirm: true });
+  expect(error).toBeNull();
+
+  // Enroll a TOTP factor for this viewer through the API.
+  const user = createClient(url, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { persistSession: false } });
+  await user.auth.signInWithPassword({ email, password: process.env.E2E_PASSWORD! });
+  const { data: enrolled } = await user.auth.mfa.enroll({ factorType: "totp" });
+  const code = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(enrolled!.totp.secret), digits: 6, period: 30 }).generate();
+  const { error: verifyError } = await user.auth.mfa.challengeAndVerify({ factorId: enrolled!.id, code });
+  expect(verifyError).toBeNull();
+
+  // Password alone must no longer be enough.
+  await login(page, email, process.env.E2E_PASSWORD!);
+  await expect(page).toHaveURL(/\/mfa$/);
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/mfa$/);
+});
