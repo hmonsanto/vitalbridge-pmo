@@ -2,7 +2,7 @@ const TONES = {
   ok: "bg-[#bfe5cf] text-[#14532d] dark:bg-emerald-900/50 dark:text-emerald-200",
   warn: "bg-[#f6dfa6] text-[#7a4b00] dark:bg-amber-900/50 dark:text-amber-200",
   danger: "bg-[#f9b9b9] text-[#7f1d1d] dark:bg-rose-900/50 dark:text-rose-200",
-  info: "bg-[#d9dcff] text-[#312e81] dark:bg-indigo-900/50 dark:text-indigo-200",
+  info: "bg-[#eadfc8] text-[#5c4413] dark:bg-[#4a3a1f]/70 dark:text-[#ecd9a8]",
 } as const;
 
 export type BadgeTone = keyof typeof TONES;

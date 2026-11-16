@@ -27,7 +27,7 @@ export function HospitalView({ project, phaseNames, gateByPhase, deliverables, b
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-2xl font-extrabold tracking-tight text-[var(--heading)]">{project.name}</h2>
+        <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--heading)]">{project.name}</h2>
         <Badge tone="info">Scenario {project.scenario}</Badge>
       </div>
 

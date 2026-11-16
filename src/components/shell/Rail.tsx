@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Building2, CalendarDays, LayoutGrid, ListChecks, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { Building2, CalendarDays, ListChecks, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { BrandMark, BrandWordmark } from "@/components/brand/Brand";
 import { usePrefersReducedMotion } from "@/components/ui/usePrefersReducedMotion";
 
 const NAV = [
@@ -20,11 +21,9 @@ export function Rail({ footer }: { footer?: React.ReactNode }) {
   const reduced = usePrefersReducedMotion();
   return (
     <aside className="rail sticky top-0 z-20 flex shrink-0 flex-row items-center gap-2 px-3 py-2 md:h-screen md:w-48 md:flex-col md:items-stretch md:gap-1 md:px-3 md:py-6">
-      <div className="mb-0 flex items-center gap-2 px-2 md:mb-6">
-        <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/15 text-white ring-1 ring-white/25">
-          <LayoutGrid size={20} />
-        </div>
-        <span className="hidden text-sm font-bold text-white md:block">VitalBridge</span>
+      <div className="mb-0 flex items-center gap-2.5 px-2 md:mb-7">
+        <BrandMark size={38} inverse />
+        <BrandWordmark inverse className="hidden text-[17px] md:block" />
       </div>
 
       <nav aria-label="Main" className="flex flex-1 flex-row gap-1 overflow-x-auto md:flex-none md:flex-col">
@@ -36,7 +35,7 @@ export function Rail({ footer }: { footer?: React.ReactNode }) {
               href={href}
               aria-current={active ? "page" : undefined}
               className={`relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                active ? "text-white" : "text-indigo-100/80 hover:bg-white/10 hover:text-white"
+                active ? "text-white" : "text-[#f3e6d8]/80 hover:bg-white/10 hover:text-white"
               }`}
             >
               {active && (
@@ -46,7 +45,7 @@ export function Rail({ footer }: { footer?: React.ReactNode }) {
                   transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 34 }}
                 />
               )}
-              <Icon size={17} className="relative z-10 shrink-0" />
+              <Icon size={17} className={`relative z-10 shrink-0 ${active ? "text-[#e0b25a]" : ""}`} />
               <span className="relative z-10 hidden md:inline">{label}</span>
             </Link>
           );

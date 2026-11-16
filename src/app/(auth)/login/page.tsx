@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { BrandMark, BrandWordmark } from "@/components/brand/Brand";
 import { signIn } from "./actions";
 
 export default function LoginPage() {
@@ -11,7 +12,11 @@ export default function LoginPage() {
       <div className="ambient" aria-hidden />
       <form action={action} className="glass-card w-full max-w-sm space-y-4 p-8">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-[var(--heading)]">VitalBridge RX PMO</h1>
+          <div className="mb-4 flex items-center gap-3">
+            <BrandMark size={44} />
+            <BrandWordmark className="text-2xl" />
+          </div>
+          <h1 className="font-display text-xl font-bold text-[var(--heading)]">Project management office</h1>
           <p className="text-sm text-[var(--muted)]">Sign in to continue</p>
         </div>
 
@@ -42,7 +47,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 font-semibold text-white shadow-lg shadow-indigo-500/30 transition-transform hover:-translate-y-0.5 disabled:opacity-60"
+          className="w-full rounded-xl bg-[var(--accent)] px-4 py-2.5 font-semibold text-white shadow-lg shadow-[#6b1f2a]/25 transition-transform hover:-translate-y-0.5 disabled:opacity-60"
         >
           {pending ? "Signing in..." : "Sign in"}
         </button>

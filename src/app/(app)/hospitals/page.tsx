@@ -37,7 +37,7 @@ export default async function HospitalsPage() {
                 <p className="mt-2 text-xs text-[var(--muted)]">Phase {h.current_phase} of 6</p>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--track)]">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500"
+                    className="bar-fill h-full rounded-full"
                     style={{ width: `${(h.current_phase / 6) * 100}%` }}
                   />
                 </div>

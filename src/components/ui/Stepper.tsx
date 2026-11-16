@@ -39,7 +39,7 @@ export function Stepper({
           >
             <div className="h-1.5 overflow-hidden rounded-full bg-[var(--track)]">
               <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500"
+                className="bar-fill h-full rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width }}
                 transition={{ delay: 0.2 + i * 0.07, duration: 0.8, ease: "easeOut" }}

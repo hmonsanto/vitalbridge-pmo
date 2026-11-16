@@ -44,7 +44,7 @@ export function ActiveDeliverables({ rows }: { rows: ActiveDeliverable[] }) {
                   <td className="py-2 pr-3 text-[var(--muted)]">{r.phase}</td>
                   <td className="pr-3 font-medium">{r.name}</td>
                   <td className="pr-3">
-                    <Link href={`/hospitals/${r.hospitalId}`} className="text-[var(--accent)] hover:underline">
+                    <Link href={`/hospitals/${r.hospitalId}`} className="text-[var(--link)] hover:underline">
                       {r.hospital}
                     </Link>
                   </td>

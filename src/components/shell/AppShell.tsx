@@ -44,7 +44,10 @@ export function AppShell({ role, completion, signOutAction, children }: Props) {
         <div className="min-w-0 flex-1 px-5 py-6 md:px-8">
           <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-[var(--heading)]">VitalBridge RX PMO</h1>
+              <p className="font-display text-[11px] font-medium uppercase italic tracking-[0.28em] text-[var(--link)]">
+                Project management office
+              </p>
+              <h1 className="font-display mt-1 text-4xl font-bold tracking-tight text-[var(--heading)]">PMO Command Center</h1>
               <p className="mt-1 text-sm font-medium text-[var(--text)]">
                 Welcome, {role === "owner" ? "Project Manager" : "Viewer"}
               </p>

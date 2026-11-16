@@ -42,7 +42,7 @@ export function DeliverablesTable({ projectId, rows, editable }: { projectId: st
               </td>
               <td className="pr-3">
                 {r.doc_url && isHttpUrl(r.doc_url) ? (
-                  <a href={r.doc_url} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] underline">
+                  <a href={r.doc_url} target="_blank" rel="noopener noreferrer" className="text-[var(--link)] underline">
                     Open
                   </a>
                 ) : (

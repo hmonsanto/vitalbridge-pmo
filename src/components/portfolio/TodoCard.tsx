@@ -10,7 +10,7 @@ export function TodoCard({ todos }: { todos: TodoItem[] }) {
       title="To-Do"
       delay={0.1}
       action={
-        <Link href="/todos" className="flex items-center gap-1 text-xs font-semibold text-[var(--accent)] hover:underline">
+        <Link href="/todos" className="flex items-center gap-1 text-xs font-semibold text-[var(--link)] hover:underline">
           All <ArrowRight size={13} />
         </Link>
       }

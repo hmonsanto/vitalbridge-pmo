@@ -11,7 +11,7 @@ export type TabProject = { id: string; name: string };
 export function ProjectTabs({ projects, canCreate }: { projects: TabProject[]; canCreate: boolean }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Hospitals" className="mb-5 flex flex-wrap items-center gap-2">
+    <nav aria-label="Hospitals" className="mb-5 flex items-center gap-2 overflow-x-auto pb-1">
       {projects.map((p, i) => {
         const active = pathname === `/hospitals/${p.id}`;
         return (
@@ -19,13 +19,14 @@ export function ProjectTabs({ projects, canCreate }: { projects: TabProject[]; c
             key={p.id}
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.05, duration: 0.3 }}
+            transition={{ delay: Math.min(i, 8) * 0.05, duration: 0.3 }}
+            className="shrink-0"
           >
             <Link
               href={`/hospitals/${p.id}`}
               aria-current={active ? "page" : undefined}
               className={`block rounded-lg px-3.5 py-1.5 text-xs font-semibold text-white shadow transition-all hover:-translate-y-0.5 ${
-                active ? "bg-[var(--pill)] ring-2 ring-white/60" : "bg-[var(--pill)]/70 hover:bg-[var(--pill)]"
+                active ? "bg-[var(--tab)] ring-2 ring-[#e0b25a]/70" : "bg-[var(--tab)]/75 hover:bg-[var(--tab)]"
               }`}
             >
               {p.name}

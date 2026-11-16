@@ -12,7 +12,7 @@ export function CompletionCard({ percent, done, total }: { percent: number; done
       </div>
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--track)]">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500"
+          className="bar-fill h-full rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${percent}%` }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
