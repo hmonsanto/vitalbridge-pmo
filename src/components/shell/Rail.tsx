@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Building2, CalendarDays, ListChecks, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { Building2, CalendarDays, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { BrandMark, BrandWordmark } from "@/components/brand/Brand";
 import { usePrefersReducedMotion } from "@/components/ui/usePrefersReducedMotion";
 
@@ -12,7 +12,6 @@ const NAV = [
   { href: "/hospitals", label: "Hospitals", icon: Building2 },
   { href: "/pmo", label: "PMO", icon: ShieldCheck },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/todos", label: "To-Do", icon: ListChecks },
 ];
 
 /** Left navigation rail. The active pill slides between items (shared layout animation). */

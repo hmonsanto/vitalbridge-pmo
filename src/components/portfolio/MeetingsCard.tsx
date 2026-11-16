@@ -7,7 +7,7 @@ const time = (iso: string) => new Date(iso).toLocaleTimeString("en-US", { hour: 
 /** Timeline of upcoming meetings: a vertical accent line with a dot per meeting. */
 export function MeetingsCard({ meetings }: { meetings: MeetingItem[] }) {
   return (
-    <Card title="Today's scheduled meetings" delay={0.15}>
+    <Card title="Upcoming meetings" delay={0.15}>
       {meetings.length === 0 ? (
         <p className="text-sm text-[var(--muted)]">Nothing scheduled.</p>
       ) : (

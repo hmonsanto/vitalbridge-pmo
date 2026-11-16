@@ -33,7 +33,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
   const meetingTo = fmtDate(new Date(new Date(`${rangeEnd}T00:00:00Z`).getTime() + 2 * DAY_MS));
 
   const supabase = await createClient();
-  const [role, deps, meetings, todos, upcoming, hospitals] = await Promise.all([
+  const [role, deps, meetings, todos, upcoming, hospitals, allTodos] = await Promise.all([
     getSessionRole(),
     supabase
       .from("dependencies")
@@ -50,6 +50,13 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       .order("due_date")
       .limit(8),
     supabase.from("projects").select("id, name").eq("kind", "hospital").order("name"),
+    // The to-do panel lists every to-do, including those with no date that the grid cannot show.
+    supabase
+      .from("todos")
+      .select("id, title, due_date, done")
+      .order("done")
+      .order("due_date", { ascending: true, nullsFirst: false })
+      .limit(200),
   ]);
 
   const events: CalendarEvent[] = [
@@ -101,6 +108,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       today={today}
       selected={selected}
       upcoming={upcomingList}
+      todos={allTodos.data ?? []}
       window340b={{ start: fmtDate(win.start), end: fmtDate(win.end), isOpen: win.isOpen }}
       hospitals={hospitals.data ?? []}
       isOwner={role === "owner"}
