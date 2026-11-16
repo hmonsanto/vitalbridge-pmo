@@ -2,7 +2,9 @@ import { redirect } from "next/navigation";
 import { getSessionRole } from "@/lib/auth";
 import { signOut } from "@/app/(auth)/login/actions";
 import { Badge } from "@/components/ui/Badge";
+import { Sidebar } from "@/components/ui/Sidebar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { PageTransition } from "@/components/ui/PageTransition";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const role = await getSessionRole();
@@ -20,7 +22,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </form>
         </div>
       </header>
-      {children}
+      <div className="grid gap-6 md:grid-cols-[200px_1fr]">
+        <Sidebar />
+        <main>
+          <PageTransition>{children}</PageTransition>
+        </main>
+      </div>
     </div>
   );
 }

@@ -1,8 +1,13 @@
 import { randomUUID } from "node:crypto";
+import { chromium } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import * as OTPAuth from "otpauth";
 
 export const OWNER_EMAIL = "owner-e2e@test.local";
 export const VIEWER_EMAIL = "viewer-e2e@test.local";
+export const OWNER_STATE = "tests/e2e/.auth/owner.json";
+export const VIEWER_STATE = "tests/e2e/.auth/viewer.json";
+const BASE_URL = "http://127.0.0.1:3100";
 
 export default async function globalSetup() {
   const password = `Pw-${randomUUID()}`;
@@ -24,4 +29,35 @@ export default async function globalSetup() {
       await admin.from("profiles").update({ role: "owner" }).eq("id", data.user.id);
     }
   }
+
+  // Pre-authenticated browser states so feature specs do not repeat the login/MFA flow.
+  const browser = await chromium.launch();
+  try {
+    const viewerCtx = await browser.newContext({ baseURL: BASE_URL });
+    const vp = await viewerCtx.newPage();
+    await signIn(vp, VIEWER_EMAIL, password);
+    await vp.waitForURL(`${BASE_URL}/`);
+    await viewerCtx.storageState({ path: VIEWER_STATE });
+
+    const ownerCtx = await browser.newContext({ baseURL: BASE_URL });
+    const op = await ownerCtx.newPage();
+    await signIn(op, OWNER_EMAIL, password);
+    await op.waitForURL(/\/mfa$/);
+    const secretText = await op.getByText(/^Secret: /).innerText();
+    const secret = secretText.replace("Secret: ", "").trim();
+    const code = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(secret), digits: 6, period: 30 }).generate();
+    await op.getByLabel("Code").fill(code);
+    await op.getByRole("button", { name: "Verify" }).click();
+    await op.waitForURL(`${BASE_URL}/`);
+    await ownerCtx.storageState({ path: OWNER_STATE });
+  } finally {
+    await browser.close();
+  }
+}
+
+async function signIn(page: import("@playwright/test").Page, email: string, password: string) {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
 }
