@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loginSchema } from "@/lib/validation";
 import { rateLimit } from "@/lib/rate-limit";
+import { recordAudit } from "@/lib/audit";
 
 export type LoginState = { error?: string } | undefined;
 
@@ -23,6 +24,8 @@ export async function signIn(_prev: LoginState, formData: FormData): Promise<Log
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { error: "Invalid credentials" };
+
+  await recordAudit("sign_in");
 
   // Owners must pass TOTP; send them straight to /mfa so the URL matches the page.
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();

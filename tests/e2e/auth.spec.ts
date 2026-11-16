@@ -39,3 +39,18 @@ test("owner without aal2 is redirected to /mfa", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/mfa$/);
 });
+
+import { createClient } from "@supabase/supabase-js";
+
+test("sign-in writes an audit entry for that user", async ({ page }) => {
+  await login(page, VIEWER_EMAIL, process.env.E2E_PASSWORD!);
+  await expect(page).toHaveURL("/");
+
+  const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { persistSession: false },
+  });
+  const { data: users } = await admin.auth.admin.listUsers({ perPage: 200 });
+  const viewer = users!.users.find((u) => u.email === VIEWER_EMAIL)!;
+  const { data } = await admin.from("audit_log").select("action").eq("actor", viewer.id).eq("action", "sign_in");
+  expect(data?.length).toBeGreaterThanOrEqual(1);
+});
