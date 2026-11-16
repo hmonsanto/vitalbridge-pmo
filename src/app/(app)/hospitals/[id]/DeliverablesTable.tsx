@@ -1,5 +1,9 @@
+import { DeleteButton } from "@/components/ui/DeleteButton";
+import { Dialog } from "@/components/ui/Dialog";
 import { StatusPill } from "@/components/ui/StatusPill";
+import { EditDeliverableForm } from "@/components/edit/EditForms";
 import { isHttpUrl } from "@/lib/url";
+import { deleteDeliverable } from "../edit-actions";
 import { StatusSelect } from "./StatusSelect";
 
 export type DeliverableRow = {
@@ -25,6 +29,11 @@ export function DeliverablesTable({ projectId, rows, editable }: { projectId: st
             <th className="pr-3">Status</th>
             <th className="pr-3">Document</th>
             <th>Remarks</th>
+            {editable && (
+              <th>
+                <span className="sr-only">Actions</span>
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -49,7 +58,17 @@ export function DeliverablesTable({ projectId, rows, editable }: { projectId: st
                   "—"
                 )}
               </td>
-              <td className="text-[var(--muted)]">{r.remarks ?? ""}</td>
+              <td className="pr-3 text-[var(--muted)]">{r.remarks ?? ""}</td>
+              {editable && (
+                <td className="whitespace-nowrap text-right">
+                  <span className="inline-flex items-center gap-0.5">
+                    <Dialog icon="edit" triggerLabel={`Edit deliverable ${r.name}`} title="Edit deliverable">
+                      <EditDeliverableForm projectId={projectId} row={r} />
+                    </Dialog>
+                    <DeleteButton label={`deliverable ${r.name}`} action={deleteDeliverable.bind(null, projectId, r.id)} />
+                  </span>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

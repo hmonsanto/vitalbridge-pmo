@@ -24,7 +24,9 @@ test.describe("owner", () => {
     await page.getByRole("link", { name: "Next month" }).click();
     await expect(page).toHaveURL(/m=2031-06/);
     await expect(page.getByRole("heading", { name: "June 2031" })).toBeVisible();
+    // Wait for each month to render: the link's target depends on the month currently shown.
     await page.getByRole("link", { name: "Previous month" }).click();
+    await expect(page.getByRole("heading", { name: "May 2031" })).toBeVisible();
     await page.getByRole("link", { name: "Previous month" }).click();
     await expect(page.getByRole("heading", { name: "April 2031" })).toBeVisible();
   });
@@ -116,7 +118,11 @@ test.describe("unified to-do list", () => {
     const row = open.getByRole("listitem").filter({ hasText: title });
     await expect(row).toBeVisible();
 
-    await row.getByRole("checkbox").check();
+    // The tick is optimistic; wait for the server to confirm before reloading, or the save could be cut off.
+    await Promise.all([
+      page.waitForResponse((r) => r.request().method() === "POST"),
+      row.getByRole("checkbox").check(),
+    ]);
     await page.reload();
     await expect(open.getByRole("listitem").filter({ hasText: title })).toHaveCount(0);
 
@@ -124,7 +130,10 @@ test.describe("unified to-do list", () => {
     const done = page.getByRole("list", { name: "Completed to-dos" }).getByRole("listitem").filter({ hasText: title });
     await expect(done.getByRole("checkbox")).toBeChecked();
 
-    await done.getByRole("checkbox").uncheck();
+    await Promise.all([
+      page.waitForResponse((r) => r.request().method() === "POST"),
+      done.getByRole("checkbox").uncheck(),
+    ]);
     await page.reload();
     await expect(open.getByRole("listitem").filter({ hasText: title })).toBeVisible();
   });

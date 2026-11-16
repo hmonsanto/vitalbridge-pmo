@@ -17,6 +17,7 @@ Evidence for every item in section 8.3 of the design (`docs/superpowers/specs/20
 | 11 | Audit log of writes and sign-ins | `src/lib/audit.ts`, called from every write action. Test: `e2e/auth.spec.ts` "sign-in writes an audit entry for that user". Only the owner can read it (`rls.test.sql`) |
 | 12 | HTTPS only | `Strict-Transport-Security` header; Vercel serves HTTPS only (`docs/deployment.md`) |
 | 13 | Backup and restore procedure | `docs/deployment.md` section 5 |
+| 14a | Edits and deletes are owner-only, scoped and audited | Every update/delete action in `src/app/(app)/hospitals/edit-actions.ts` and `src/app/(app)/todos/actions.ts` checks the owner role, filters by project id, reports zero affected rows as a failure and records an audit entry. RLS enforces it again in the database (`rls.test.sql`; `e2e/security.spec.ts` "a viewer cannot write through the API directly"). Deleting a hospital also requires typing its exact name, checked on the server. Tests: `e2e/edit-delete.spec.ts` |
 | 14 | Document links cannot carry script URLs | `src/lib/url.ts` (`isHttpUrl`) enforced in `deliverableSchema` and again when rendering. Test: `tests/validation.test.ts` "deliverableSchema doc_url" |
 | 15 | Dependency audit | `npm audit`: 0 high or critical; 0 in production dependencies; 7 moderate findings, all in the ESLint/TypeScript dev toolchain (not shipped) |
 

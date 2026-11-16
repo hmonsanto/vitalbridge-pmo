@@ -60,7 +60,7 @@ test.describe("owner", () => {
     await page.getByLabel("Deliverable name").fill(name);
     await page.getByLabel("Phase", { exact: true }).selectOption("3");
     await page.getByRole("button", { name: "Add deliverable" }).click();
-    await expect(page.getByRole("cell", { name })).toBeVisible();
+    await expect(page.getByRole("cell", { name, exact: true })).toBeVisible();
   });
 });
 

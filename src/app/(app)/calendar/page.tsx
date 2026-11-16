@@ -33,7 +33,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
   const meetingTo = fmtDate(new Date(new Date(`${rangeEnd}T00:00:00Z`).getTime() + 2 * DAY_MS));
 
   const supabase = await createClient();
-  const [role, deps, meetings, todos, upcoming, hospitals, allTodos] = await Promise.all([
+  const [role, deps, meetings, todos, overdueDeps, hospitals, allTodos, upcomingDeps] = await Promise.all([
     getSessionRole(),
     supabase
       .from("dependencies")
@@ -43,12 +43,14 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       .neq("status", "done"),
     supabase.from("meetings").select("id, title, starts_at").gte("starts_at", meetingFrom).lt("starts_at", meetingTo),
     supabase.from("todos").select("id, title, due_date").eq("done", false).gte("due_date", rangeStart).lte("due_date", rangeEnd),
+    // Overdue and upcoming are fetched separately so a pile of old overdue items can never hide what is coming.
     supabase
       .from("dependencies")
       .select("id, title, type, due_date, status, projects(id, name)")
       .neq("status", "done")
-      .order("due_date")
-      .limit(8),
+      .lt("due_date", today)
+      .order("due_date", { ascending: false })
+      .limit(4),
     supabase.from("projects").select("id, name").eq("kind", "hospital").order("name"),
     // The to-do panel lists every to-do, including those with no date that the grid cannot show.
     supabase
@@ -57,6 +59,13 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       .order("done")
       .order("due_date", { ascending: true, nullsFirst: false })
       .limit(200),
+    supabase
+      .from("dependencies")
+      .select("id, title, type, due_date, status, projects(id, name)")
+      .neq("status", "done")
+      .gte("due_date", today)
+      .order("due_date")
+      .limit(8),
   ]);
 
   const events: CalendarEvent[] = [
@@ -70,6 +79,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
         detail: `${p?.name ?? ""} · ${x.type}`,
         overdue: isOverdue(x.due_date, x.status),
         href: p ? `/hospitals/${p.id}` : undefined,
+        meta: { projectId: p?.id, type: x.type, status: x.status },
       };
     }),
     ...(meetings.data ?? [])
@@ -81,6 +91,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
         kind: "meeting" as const,
         title: x.title,
         detail: at.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+        meta: { startsAt: `${localDay(at)}T${pad(at.getHours())}:${pad(at.getMinutes())}` },
       })),
     ...(todos.data ?? []).map((x) => ({
       id: x.id,
@@ -91,7 +102,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
   ].sort((a, b) => KIND_ORDER[a.kind] - KIND_ORDER[b.kind] || a.title.localeCompare(b.title));
 
   const win = next340bWindow(now);
-  const upcomingList: UpcomingDependency[] = (upcoming.data ?? []).map((x) => ({
+  const upcomingList: UpcomingDependency[] = [...(overdueDeps.data ?? []), ...(upcomingDeps.data ?? [])].map((x) => ({
     id: x.id,
     title: x.title,
     type: x.type,

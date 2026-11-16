@@ -3,6 +3,10 @@
 import { useActionState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { DeleteButton } from "@/components/ui/DeleteButton";
+import { Dialog } from "@/components/ui/Dialog";
+import { EditRiskForm } from "@/components/edit/EditForms";
+import { deleteRisk } from "../edit-actions";
 import { addRisk } from "../ops-actions";
 
 export type RiskRow = { id: string; title: string; severity: string; owner: string | null; status: string };
@@ -20,11 +24,21 @@ export function RisksCard({ projectId, risks, editable }: { projectId: string; r
         <ul className="space-y-2 text-sm">
           {risks.map((r) => (
             <li key={r.id} className="flex items-center justify-between gap-3">
-              <span>
+              <span className={r.status === "closed" ? "text-[var(--muted)]" : ""}>
                 {r.title}
-                {r.status === "closed" && <span className="ml-2 text-xs text-[var(--muted)]">(closed)</span>}
+                {r.status === "closed" && <span className="ml-2 text-xs">(closed)</span>}
               </span>
-              <Badge tone={TONE[r.severity as keyof typeof TONE] ?? "info"}>{r.severity}</Badge>
+              <span className="flex shrink-0 items-center gap-1">
+                <Badge tone={TONE[r.severity as keyof typeof TONE] ?? "info"}>{r.severity}</Badge>
+                {editable && (
+                  <>
+                    <Dialog icon="edit" triggerLabel={`Edit risk ${r.title}`} title="Edit risk">
+                      <EditRiskForm projectId={projectId} risk={r} />
+                    </Dialog>
+                    <DeleteButton label={`risk ${r.title}`} action={deleteRisk.bind(null, projectId, r.id)} />
+                  </>
+                )}
+              </span>
             </li>
           ))}
         </ul>

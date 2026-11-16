@@ -48,6 +48,17 @@ Esto no es solo visual: la base de datos rechaza cualquier escritura de un Viewe
 
 **Encabezado:** a la derecha, "Overall completion" muestra el porcentaje de **entregables completados** entre todos los proyectos (hospitales y PMO). Es un termómetro general, no una medida financiera.
 
+### Editar y borrar (solo Owner)
+
+Casi todo lo que se carga se puede corregir o eliminar. En cada fila hay dos iconos pequeños:
+
+- **Lápiz (editar):** abre una ventana con los datos actuales. Cámbielos y pulse **"Save changes"**, o **"Cancel"** (o la tecla Esc) para salir sin cambiar nada.
+- **Cubo de basura (borrar):** pide confirmación en dos pasos. Aparece **"Delete?"**; pulse **"Yes, delete"** para confirmar o **"Cancel"** para arrepentirse.
+
+Se puede editar y borrar: hospitales, entregables, riesgos, dependencias, entradas de línea base, reuniones y to-dos. **Borrar es definitivo**: no hay papelera. Cada cambio queda en el registro de auditoría.
+
+**Un hospital tiene una protección extra:** al borrarlo se eliminan también todos sus entregables, riesgos, dependencias y línea base, por eso la aplicación le pide **escribir el nombre exacto del hospital** antes de habilitar el borrado.
+
 ---
 
 ## 4. Portfolio (la pantalla de inicio)
@@ -88,6 +99,8 @@ Si hay una farmacia pero le falta licencia, registro DEA o inscripción 340B, si
 
 Cada hospital aparece como una **pestaña** arriba. Si hay muchas, se desliza horizontalmente.
 
+Junto al nombre del hospital están el **lápiz** (cambiar nombre o escenario) y el **cubo de basura** (eliminar el hospital, escribiendo su nombre).
+
 ### 5.2 Fases y puertas (gates)
 
 Son 6 fases, y las puertas G1 a G5 se registran al cerrar las fases 1 a 5:
@@ -119,6 +132,9 @@ La tabla lista los entregables por fase, con responsable, estado y observaciones
 - **Agregar:** bajo la tabla, escriba "Deliverable name", elija la "Phase", opcionalmente el "Owner", y pulse "Add deliverable".
 - **Cambiar el estado:** use el desplegable de la columna "Status": *Not started*, *In progress*, *Completed*, *Blocked*. Un entregable *Blocked* se muestra con una píldora roja con latido en el Portfolio y en la vista del Viewer; el Owner lo ve en el desplegable.
 
+- **Editar:** el lápiz de la fila permite cambiar el nombre, la fase y el responsable, y además cargar el **"Document link"** (debe empezar con `http://` o `https://`) y las **"Remarks"** (observaciones). El enlace aparece como "Open" en la columna "Document".
+- **Borrar:** el cubo de basura, con confirmación.
+
 Los responsables se escriben con las siglas de los documentos: PM (Project Manager), VP (farmacéutico de VitalBridge), HL (líder del hospital), SC (comité directivo).
 
 ### 5.4 Baseline and fee (línea base y honorarios)
@@ -137,10 +153,14 @@ Ejemplo: mes 1 baseline 100 / actual 140 → +40. Mes 2 baseline 100 / actual 60
 
 Es una **estimación de gestión**, no un documento contable. El gráfico muestra la línea real (continua) contra la base (punteada).
 
+**Corregir una entrada:** con el lápiz cambia los importes de baseline y actual (el fee se recalcula al instante). El **mes no se puede cambiar**: si se equivocó de mes, borre la entrada (cubo de basura) y agréguela de nuevo.
+
 ### 5.5 Risks (riesgos)
 
 - **Agregar:** "Risk title" + "Severity" (Low, Medium, High, Critical) → "Add risk".
 - Los **High** y **Critical** abiertos aparecen en "Major issues" del Portfolio.
+- **Cambiar o cerrar un riesgo:** lápiz → cambie la severidad, el responsable o el **"Status"** (*Open*, *Mitigating*, *Closed*). Un riesgo **Closed** aparece atenuado con la marca "(closed)" y **deja de contar** en "Open risks" y en "Major issues".
+- Para eliminarlo del todo, use el cubo de basura.
 
 ### 5.6 External dependencies (dependencias externas)
 
@@ -148,6 +168,7 @@ Cosas que **no controla**: licencias, DEA, inscripción 340B, contratos con paga
 
 - **Agregar:** "Dependency title", "Type", "Due date" → "Add dependency".
 - **"Mark done"** la cierra. Si la fecha ya pasó y no está hecha, muestra **"Overdue"** en rojo.
+- **Editar:** lápiz → título, tipo, fecha y estado (*Pending*, *In progress*, *Blocked*, *Done*). **Borrar:** cubo de basura.
 - Aparecen también en el Calendar.
 
 ---
@@ -181,6 +202,8 @@ Una sola pantalla para todo lo que tiene fecha, más la lista de pendientes.
 ### 7.2 El panel de un día
 
 Haga clic en cualquier día: a la derecha se abre su detalle, con la lista de eventos (y un enlace "Open" a la dependencia en su hospital).
+
+**Solo Owner:** cada evento tiene su lápiz y su cubo de basura. Así puede cambiar la hora de una reunión, la fecha de un to-do o de una dependencia, o eliminarlos, sin salir del calendario.
 
 **Solo Owner:** debajo aparecen tres pestañas para agregar en ese día:
 - **Meeting:** título y hora ("Starts at", viene con las 9:00 del día elegido).
@@ -262,9 +285,9 @@ Muestra **todos** los pendientes, con o sin fecha (la grilla solo muestra los qu
 
 Conviene conocerlo para no perder tiempo buscándolo:
 
-- **Editar o borrar** hospitales, entregables, riesgos, dependencias, reuniones o to-dos. Un error de tipeo hoy queda tal cual (los estados de los entregables, "Mark done" y las casillas de to-do sí se pueden cambiar).
-- **Cerrar un riesgo.** Todos quedan "abiertos"; un riesgo resuelto sigue contando.
-- **Cargar el enlace a un documento o las observaciones** de un entregable: las columnas "Document" y "Remarks" existen, pero el formulario aún no tiene esos campos.
+- **Deshacer un borrado.** No hay papelera: lo borrado se pierde (queda solo la huella en el registro de auditoría).
+- **Editar las decisiones de las puertas ya superadas.** Una decisión se registra de nuevo solo mientras la puerta sigue siendo la actual; las anteriores no se reabren.
+- **Cambiar el mes de una entrada de línea base.** Se borra y se vuelve a cargar.
 - **Cambiar o recuperar la contraseña** y **restablecer el MFA** desde la aplicación.
 - **Exportar** a Excel o PowerPoint, ni integrarse con Asana, Jira, Teams u Outlook.
 - **Comandos de voz** o asistente de IA (previstos como una fase posterior).

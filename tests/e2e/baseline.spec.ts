@@ -39,14 +39,14 @@ test.describe("owner", () => {
     await addEntry(page, "2027-01", "100", "140");
     await expect(page.getByTestId("fee")).toHaveText("$12.00");
     await addEntry(page, "2027-02", "100", "60");
-    await expect(page.getByRole("cell", { name: "2027-02" })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "2027-02", exact: true })).toBeVisible();
     await expect(page.getByTestId("fee")).toHaveText("$12.00");
   });
 
   test("a duplicate month is rejected with a message", async ({ page }) => {
     await newHospital(page);
     await addEntry(page, "2027-01", "100", "140");
-    await expect(page.getByRole("cell", { name: "2027-01" })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "2027-01", exact: true })).toBeVisible();
     await addEntry(page, "2027-01", "100", "150");
     await expect(page.getByText("That month already has an entry")).toBeVisible();
   });

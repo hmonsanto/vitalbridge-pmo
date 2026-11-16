@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toggleTodo } from "@/app/(app)/todos/actions";
+import { DeleteButton } from "@/components/ui/DeleteButton";
+import { Dialog } from "@/components/ui/Dialog";
+import { EditTodoForm } from "@/components/edit/EditForms";
+import { deleteTodo, toggleTodo } from "@/app/(app)/todos/actions";
 
 type Props = { id: string; title: string; dueDate: string | null; done: boolean; overdue?: boolean; editable: boolean };
 
@@ -26,6 +29,14 @@ export function TodoItem({ id, title, dueDate, done, overdue = false, editable }
       {dueDate && (
         <span className={`shrink-0 text-xs ${overdue && !checked ? "font-semibold text-rose-600" : "text-[var(--muted)]"}`}>
           {dueDate}
+        </span>
+      )}
+      {editable && (
+        <span className="flex shrink-0 items-center gap-0.5">
+          <Dialog icon="edit" triggerLabel={`Edit to-do ${title}`} title="Edit to-do">
+            <EditTodoForm todo={{ id, title, due_date: dueDate }} />
+          </Dialog>
+          <DeleteButton label={`to-do ${title}`} action={deleteTodo.bind(null, id)} />
         </span>
       )}
     </li>

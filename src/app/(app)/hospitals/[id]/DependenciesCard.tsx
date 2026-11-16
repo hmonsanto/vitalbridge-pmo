@@ -3,7 +3,11 @@
 import { useActionState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { DeleteButton } from "@/components/ui/DeleteButton";
+import { Dialog } from "@/components/ui/Dialog";
+import { EditDependencyForm } from "@/components/edit/EditForms";
 import { isOverdue } from "@/domain/dependencies";
+import { deleteDependency } from "../edit-actions";
 import { addDependency, markDependencyDone } from "../ops-actions";
 
 export type DependencyRow = { id: string; title: string; type: string; due_date: string; status: string };
@@ -44,6 +48,14 @@ export function DependenciesCard({
                   <form action={markDependencyDone.bind(null, projectId, d.id)}>
                     <button className="rounded-lg border border-[var(--border)] px-2 py-1 text-xs">Mark done</button>
                   </form>
+                )}
+                {editable && (
+                  <span className="flex items-center gap-0.5">
+                    <Dialog icon="edit" triggerLabel={`Edit dependency ${d.title}`} title="Edit dependency">
+                      <EditDependencyForm projectId={projectId} dependency={d} />
+                    </Dialog>
+                    <DeleteButton label={`dependency ${d.title}`} action={deleteDependency.bind(null, projectId, d.id)} />
+                  </span>
                 )}
               </span>
             </li>

@@ -1,5 +1,7 @@
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { Dialog } from "@/components/ui/Dialog";
+import { DeleteHospitalForm, EditHospitalForm } from "@/components/edit/EditForms";
 import { Stepper } from "@/components/ui/Stepper";
 import type { GateDecision } from "@/domain/gates";
 import { AddDeliverableForm } from "./AddDeliverableForm";
@@ -29,6 +31,16 @@ export function HospitalView({ project, phaseNames, gateByPhase, deliverables, b
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--heading)]">{project.name}</h2>
         <Badge tone="info">Scenario {project.scenario}</Badge>
+        {isOwner && (
+          <span className="flex items-center gap-0.5">
+            <Dialog icon="edit" triggerLabel="Edit hospital" title="Edit hospital">
+              <EditHospitalForm projectId={id} name={project.name} scenario={project.scenario} />
+            </Dialog>
+            <Dialog icon="delete" triggerLabel="Delete hospital" title="Delete hospital">
+              <DeleteHospitalForm projectId={id} name={project.name} />
+            </Dialog>
+          </span>
+        )}
       </div>
 
       <Card title="Phases and gates">
@@ -36,8 +48,8 @@ export function HospitalView({ project, phaseNames, gateByPhase, deliverables, b
         {isOwner && phase <= 5 && <GateDecisionForm projectId={id} phase={phase} />}
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_410px]">
+        <div>
           <Card title="Deliverables" delay={0.1}>
             <DeliverablesTable projectId={id} rows={deliverables} editable={isOwner} />
             {isOwner && <AddDeliverableForm projectId={id} />}

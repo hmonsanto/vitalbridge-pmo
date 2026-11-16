@@ -10,6 +10,8 @@ export type CalendarEvent = {
   detail?: string;
   overdue?: boolean;
   href?: string;
+  /** What the owner's edit form needs to prefill, beyond the fields above. */
+  meta?: { projectId?: string; type?: string; status?: string; startsAt?: string };
 };
 
 export type HospitalOption = { id: string; name: string };

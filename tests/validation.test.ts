@@ -86,3 +86,31 @@ describe("deliverableSchema doc_url", () => {
     expect(deliverableSchema.safeParse({ ...base, doc_url: "https://example.com/doc.docx" }).success).toBe(true);
   });
 });
+
+import { deliverableEditSchema, dependencyEditSchema } from "@/lib/validation";
+
+describe("deliverableEditSchema", () => {
+  const base = { name: "Doc", phase: 2 };
+  test("accepts a deliverable with no link or remarks", () => {
+    expect(deliverableEditSchema.safeParse(base).success).toBe(true);
+  });
+  test("accepts an https link and remarks", () => {
+    expect(
+      deliverableEditSchema.safeParse({ ...base, doc_url: "https://example.com/a.docx", remarks: "Signed off" }).success,
+    ).toBe(true);
+  });
+  test("rejects a script link", () => {
+    expect(deliverableEditSchema.safeParse({ ...base, doc_url: "javascript:alert(1)" }).success).toBe(false);
+  });
+  test("rejects a phase outside 1-6", () => {
+    expect(deliverableEditSchema.safeParse({ ...base, phase: 7 }).success).toBe(false);
+  });
+});
+
+describe("dependencyEditSchema", () => {
+  const base = { title: "DEA", type: "dea", due_date: "2027-01-01" };
+  test("requires a known status", () => {
+    expect(dependencyEditSchema.safeParse({ ...base, status: "maybe" }).success).toBe(false);
+    expect(dependencyEditSchema.safeParse({ ...base, status: "in_progress" }).success).toBe(true);
+  });
+});

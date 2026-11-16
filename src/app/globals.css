@@ -168,6 +168,34 @@ body {
   }
 }
 
+/* Modal dialog used for editing and for destructive confirmations. */
+.app-dialog {
+  margin: auto;
+  width: min(34rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 1.5rem;
+  text-align: left;
+  color: var(--text);
+  background: color-mix(in srgb, var(--bg-base) 94%, white);
+  border: 1px solid var(--card-border);
+  border-radius: 1.25rem;
+  box-shadow: 0 24px 64px rgba(34, 20, 12, 0.35);
+}
+.app-dialog[open] {
+  animation: dialog-in 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.app-dialog::backdrop {
+  background: rgba(24, 14, 10, 0.5);
+  backdrop-filter: blur(3px);
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
 /* Table rows lift gently on hover. */
 .row-hover {
   transition: background-color 0.2s ease;
@@ -198,7 +226,8 @@ body {
   .ambient::before,
   .ambient::after,
   .pulse-critical,
-  .skeleton::after {
+  .skeleton::after,
+  .app-dialog[open] {
     animation: none;
   }
 }

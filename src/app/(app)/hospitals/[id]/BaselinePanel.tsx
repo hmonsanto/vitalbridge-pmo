@@ -2,7 +2,11 @@
 
 import { useActionState } from "react";
 import { Card } from "@/components/ui/Card";
+import { DeleteButton } from "@/components/ui/DeleteButton";
+import { Dialog } from "@/components/ui/Dialog";
+import { EditBaselineForm } from "@/components/edit/EditForms";
 import { calcFee } from "@/domain/fee";
+import { deleteBaselineEntry } from "../edit-actions";
 import { addBaselineEntry } from "../ops-actions";
 
 export type BaselineRow = { id: string; month: string; baseline: number; actual: number };
@@ -66,28 +70,48 @@ export function BaselinePanel({ projectId, rows, editable }: { projectId: string
       {sorted.length === 0 ? (
         <p className="mt-3 text-sm text-[var(--muted)]">No baseline entries yet.</p>
       ) : (
-        <table className="mt-3 w-full text-left text-sm">
-          <thead className="text-xs text-[var(--muted)]">
-            <tr>
-              <th className="py-1">Month</th>
-              <th>Baseline</th>
-              <th>Actual</th>
-              <th>Difference</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((r) => (
-              <tr key={r.id} className="border-t border-[var(--border)]">
-                <td className="py-1">{r.month.slice(0, 7)}</td>
-                <td>{money.format(r.baseline)}</td>
-                <td>{money.format(r.actual)}</td>
-                <td className={r.actual >= r.baseline ? "text-emerald-600" : "text-rose-600"}>
-                  {money.format(r.actual - r.baseline)}
-                </td>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full whitespace-nowrap text-left text-xs [&_td]:pr-3 [&_th]:pr-3">
+            <thead className="text-[var(--muted)]">
+              <tr>
+                <th className="py-1">Month</th>
+                <th>Baseline</th>
+                <th>Actual</th>
+                <th>Difference</th>
+                {editable && (
+                  <th>
+                    <span className="sr-only">Actions</span>
+                  </th>
+                )}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {sorted.map((r) => (
+                <tr key={r.id} className="border-t border-[var(--border)]">
+                  <td className="py-1">{r.month.slice(0, 7)}</td>
+                  <td>{money.format(r.baseline)}</td>
+                  <td>{money.format(r.actual)}</td>
+                  <td className={r.actual >= r.baseline ? "text-emerald-600" : "text-rose-600"}>
+                    {money.format(r.actual - r.baseline)}
+                  </td>
+                  {editable && (
+                    <td className="whitespace-nowrap text-right">
+                      <span className="inline-flex items-center gap-0.5">
+                        <Dialog icon="edit" triggerLabel={`Edit entry ${r.month.slice(0, 7)}`} title="Edit baseline entry">
+                          <EditBaselineForm projectId={projectId} entry={r} />
+                        </Dialog>
+                        <DeleteButton
+                          label={`entry ${r.month.slice(0, 7)}`}
+                          action={deleteBaselineEntry.bind(null, projectId, r.id)}
+                        />
+                      </span>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {editable && (

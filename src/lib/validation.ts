@@ -57,3 +57,10 @@ export const meetingSchema = z.object({
   title: text(200),
   starts_at: z.string().datetime(),
 });
+
+/** Fields of the edit-deliverable form (status has its own inline control). */
+export const deliverableEditSchema = deliverableSchema.omit({ status: true });
+
+export const dependencyEditSchema = dependencySchema.extend({
+  status: z.enum(["pending", "in_progress", "done", "blocked"]),
+});
