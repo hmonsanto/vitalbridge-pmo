@@ -34,19 +34,19 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   const isLogin = path === "/login";
   if (!isLogin && !isGuardedPath(path)) return response;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Identity from the JWT, verified locally: no round trip to the Auth server on every click.
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
 
-  if (!user) return isLogin ? response : redirect("/login");
+  if (!claims?.sub) return isLogin ? response : redirect("/login");
   if (isLogin) return redirect("/");
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (path !== "/mfa") {
-    // Owners always need TOTP; anyone who enrolled a factor must complete it (aal2).
+  // A session already at aal2 (TOTP done) needs nothing else. Only aal1 sessions pay for the role lookup,
+  // which decides whether MFA is still required: owners always, anyone else who enrolled a factor.
+  if (path !== "/mfa" && claims.aal !== "aal2") {
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", claims.sub).single();
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    const mfaRequired = profile?.role === "owner" || aal?.nextLevel === "aal2";
-    if (mfaRequired && aal?.currentLevel !== "aal2") return redirect("/mfa");
+    if (profile?.role === "owner" || aal?.nextLevel === "aal2") return redirect("/mfa");
   }
   return response;
 }

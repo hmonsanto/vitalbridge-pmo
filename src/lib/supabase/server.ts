@@ -1,9 +1,13 @@
+import { cache } from "react";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_OPTIONS } from "./cookie-options";
 
-/** Server-side Supabase client bound to the request's httpOnly session cookies. */
-export async function createClient() {
+/**
+ * Server-side Supabase client bound to the request's httpOnly session cookies.
+ * Cached per request so layouts, pages and actions share one client (and one refreshed session).
+ */
+export const createClient = cache(async () => {
   const cookieStore = await cookies();
   return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     cookieOptions: SESSION_COOKIE_OPTIONS,
@@ -18,4 +22,4 @@ export async function createClient() {
       },
     },
   });
-}
+});

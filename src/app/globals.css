@@ -109,6 +109,25 @@ body {
   box-shadow: 8px 0 40px rgba(31, 23, 87, 0.25);
 }
 
+/* Loading placeholders: a soft shimmer sweeping across the glass. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.45) 50%, transparent 80%);
+  transform: translateX(-100%);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
 /* Table rows lift gently on hover. */
 .row-hover {
   transition: background-color 0.2s ease;
@@ -138,7 +157,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .ambient::before,
   .ambient::after,
-  .pulse-critical {
+  .pulse-critical,
+  .skeleton::after {
     animation: none;
   }
 }

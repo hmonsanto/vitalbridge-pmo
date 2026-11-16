@@ -1,21 +1,24 @@
 import { redirect } from "next/navigation";
-import { getSessionRole } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/(auth)/login/actions";
 import { completionRate } from "@/domain/completion";
 import { AppShell } from "@/components/shell/AppShell";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const role = await getSessionRole();
-  if (!role) redirect("/login");
-
   const supabase = await createClient();
-  const { data } = await supabase.from("deliverables").select("status");
-  const statuses = (data ?? []).map((d) => d.status as string);
+  // Independent lookups run together instead of one after the other.
+  const [session, deliverables] = await Promise.all([
+    getSession(),
+    supabase.from("deliverables").select("status"),
+  ]);
+  if (!session?.role) redirect("/login");
+
+  const statuses = (deliverables.data ?? []).map((d) => d.status as string);
 
   return (
     <AppShell
-      role={role}
+      role={session.role}
       completion={{
         percent: completionRate(statuses),
         done: statuses.filter((s) => s === "completed").length,

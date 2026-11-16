@@ -27,3 +27,4 @@ Evidence for every item in section 8.3 of the design (`docs/superpowers/specs/20
 - Meeting times entered in the form are interpreted in the server's time zone.
 - Supabase's own sign-in endpoint is not covered by the app's rate limiter; rely on Supabase's built-in auth rate limits.
 - The audit log records successful sign-ins and writes, not failed sign-in attempts.
+- Pages verify the session by checking the JWT locally instead of asking the Auth server on every request. This is faster, but a session revoked elsewhere (for example, signing out on another device) stays valid here until the access token expires (1 hour by default). Writes remain protected by RLS and the MFA gate.

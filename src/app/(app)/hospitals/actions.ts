@@ -36,7 +36,8 @@ export async function createHospital(_prev: FormState, formData: FormData): Prom
     .insert(["G1", "G2", "G3", "G4", "G5"].map((code) => ({ project_id: data.id, code })));
   await recordAudit("create", "projects", data.id);
 
-  revalidatePath("/hospitals");
+  // The project tabs live in the /hospitals layout, so refresh the whole segment.
+  revalidatePath("/hospitals", "layout");
   redirect(`/hospitals/${data.id}`);
 }
 
@@ -62,6 +63,7 @@ export async function addDeliverable(projectId: string, _prev: FormState, formDa
   await recordAudit("create", "deliverables", data.id);
   revalidatePath(`/hospitals/${projectId}`);
   revalidatePath("/pmo");
+  revalidatePath("/", "layout"); // the header's overall completion depends on deliverables
   return { ok: true };
 }
 
@@ -77,6 +79,7 @@ export async function setDeliverableStatus(projectId: string, deliverableId: str
   await recordAudit("update", "deliverables", deliverableId);
   revalidatePath(`/hospitals/${projectId}`);
   revalidatePath("/pmo");
+  revalidatePath("/", "layout"); // the header's overall completion depends on deliverables
   return { ok: true };
 }
 
