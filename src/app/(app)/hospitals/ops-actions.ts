@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionRole } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
-import { riskSchema, dependencySchema } from "@/lib/validation";
+import { riskSchema, dependencySchema, baselineEntrySchema } from "@/lib/validation";
 import type { FormState } from "./actions";
 
 async function requireOwner(): Promise<boolean> {
@@ -68,4 +68,30 @@ export async function markDependencyDone(projectId: string, dependencyId: string
   revalidatePath(`/hospitals/${projectId}`);
   revalidatePath("/calendar");
   revalidatePath("/");
+}
+
+export async function addBaselineEntry(projectId: string, _prev: FormState, formData: FormData): Promise<FormState> {
+  if (!(await requireOwner())) return { error: "Not allowed" };
+
+  const month = String(formData.get("month") ?? ""); // <input type="month"> yields YYYY-MM
+  const parsed = baselineEntrySchema.safeParse({
+    month: /^\d{4}-\d{2}$/.test(month) ? `${month}-01` : month,
+    baseline: Number(formData.get("baseline")),
+    actual: Number(formData.get("actual")),
+  });
+  if (!parsed.success) return { error: "Enter a month and non-negative amounts" };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("baseline_entries")
+    .insert({ ...parsed.data, project_id: projectId })
+    .select("id")
+    .single();
+  if (error) {
+    return { error: error.code === "23505" ? "That month already has an entry" : "Could not add the entry" };
+  }
+
+  await recordAudit("create", "baseline_entries", data!.id);
+  revalidatePath(`/hospitals/${projectId}`);
+  return { ok: true };
 }
