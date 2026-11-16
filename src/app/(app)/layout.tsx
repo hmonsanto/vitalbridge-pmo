@@ -1,33 +1,29 @@
 import { redirect } from "next/navigation";
 import { getSessionRole } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/(auth)/login/actions";
-import { Badge } from "@/components/ui/Badge";
-import { Sidebar } from "@/components/ui/Sidebar";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { PageTransition } from "@/components/ui/PageTransition";
+import { completionRate } from "@/domain/completion";
+import { AppShell } from "@/components/shell/AppShell";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const role = await getSessionRole();
   if (!role) redirect("/login");
 
+  const supabase = await createClient();
+  const { data } = await supabase.from("deliverables").select("status");
+  const statuses = (data ?? []).map((d) => d.status as string);
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
-      <header className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[var(--heading)]">VitalBridge RX PMO</h1>
-        <div className="flex items-center gap-3">
-          <Badge tone={role === "owner" ? "ok" : "info"}>{role === "owner" ? "Owner" : "Viewer"}</Badge>
-          <ThemeToggle />
-          <form action={signOut}>
-            <button className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs">Sign out</button>
-          </form>
-        </div>
-      </header>
-      <div className="grid gap-6 md:grid-cols-[200px_1fr]">
-        <Sidebar />
-        <main>
-          <PageTransition>{children}</PageTransition>
-        </main>
-      </div>
-    </div>
+    <AppShell
+      role={role}
+      completion={{
+        percent: completionRate(statuses),
+        done: statuses.filter((s) => s === "completed").length,
+        total: statuses.length,
+      }}
+      signOutAction={signOut}
+    >
+      {children}
+    </AppShell>
   );
 }

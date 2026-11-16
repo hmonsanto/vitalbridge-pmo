@@ -29,12 +29,18 @@ export default async function HospitalsPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           {hospitals!.map((h, i) => (
             <Link key={h.id} href={`/hospitals/${h.id}`}>
-              <Card delay={i * 0.05} className="transition-shadow hover:shadow-lg">
+              <Card delay={i * 0.05} lift>
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-[var(--heading)]">{h.name}</span>
                   <Badge tone="info">Scenario {h.scenario}</Badge>
                 </div>
                 <p className="mt-2 text-xs text-[var(--muted)]">Phase {h.current_phase} of 6</p>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--track)]">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500"
+                    style={{ width: `${(h.current_phase / 6) * 100}%` }}
+                  />
+                </div>
               </Card>
             </Link>
           ))}

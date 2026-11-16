@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/Badge";
+import { StatusPill } from "@/components/ui/StatusPill";
 import { isHttpUrl } from "@/lib/url";
 import { StatusSelect } from "./StatusSelect";
 
@@ -12,20 +12,12 @@ export type DeliverableRow = {
   remarks: string | null;
 };
 
-const TONE = { completed: "ok", in_progress: "info", blocked: "danger", not_started: "warn" } as const;
-const LABEL: Record<string, string> = {
-  completed: "Completed",
-  in_progress: "In progress",
-  blocked: "Blocked",
-  not_started: "Not started",
-};
-
 export function DeliverablesTable({ projectId, rows, editable }: { projectId: string; rows: DeliverableRow[]; editable: boolean }) {
   if (rows.length === 0) return <p className="text-sm text-[var(--muted)]">No deliverables yet.</p>;
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <thead className="text-xs text-[var(--muted)]">
+        <thead className="text-[11px] uppercase tracking-wide text-[var(--muted)]">
           <tr>
             <th className="py-2 pr-3">Phase</th>
             <th className="pr-3">Name</th>
@@ -37,7 +29,7 @@ export function DeliverablesTable({ projectId, rows, editable }: { projectId: st
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.id} className="border-t border-[var(--border)]">
+            <tr key={r.id} className="row-hover border-t border-[var(--border)]">
               <td className="py-2 pr-3">{r.phase}</td>
               <td className="pr-3 font-medium">{r.name}</td>
               <td className="pr-3">{r.owner ?? "—"}</td>
@@ -45,7 +37,7 @@ export function DeliverablesTable({ projectId, rows, editable }: { projectId: st
                 {editable ? (
                   <StatusSelect projectId={projectId} deliverableId={r.id} status={r.status} />
                 ) : (
-                  <Badge tone={TONE[r.status as keyof typeof TONE] ?? "info"}>{LABEL[r.status] ?? r.status}</Badge>
+                  <StatusPill status={r.status} />
                 )}
               </td>
               <td className="pr-3">

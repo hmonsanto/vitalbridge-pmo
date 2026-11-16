@@ -11,7 +11,8 @@ export default async function MfaPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm space-y-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-lg backdrop-blur">
+      <div className="ambient" aria-hidden />
+      <div className="glass-card w-full max-w-sm space-y-4 p-8">
         <h1 className="text-xl font-bold text-[var(--heading)]">Two-factor authentication</h1>
         {enrollment ? (
           <>

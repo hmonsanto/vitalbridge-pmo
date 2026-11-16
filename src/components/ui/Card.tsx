@@ -1,15 +1,33 @@
 "use client";
 import { motion } from "framer-motion";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
-export function Card({ title, children, delay = 0, className = "" }: { title?: string; children: React.ReactNode; delay?: number; className?: string }) {
+type Props = {
+  title?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  /** Raise the card slightly on hover (for navigable or glanceable cards, not for forms). */
+  lift?: boolean;
+};
+
+export function Card({ title, action, children, delay = 0, className = "", lift = false }: Props) {
+  const reduced = usePrefersReducedMotion();
   return (
     <motion.section
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay, ease: "easeOut" }}
-      className={`rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm backdrop-blur ${className}`}
+      whileHover={lift && !reduced ? { y: -5 } : undefined}
+      transition={{ duration: 0.45, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={`glass-card p-5 ${className}`}
     >
-      {title && <h2 className="mb-3 text-sm font-semibold text-[var(--heading)]">{title}</h2>}
+      {(title || action) && (
+        <div className="mb-3 flex items-center justify-between gap-3">
+          {title && <h2 className="text-sm font-bold text-[var(--heading)]">{title}</h2>}
+          {action}
+        </div>
+      )}
       {children}
     </motion.section>
   );

@@ -8,12 +8,10 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
-      <form
-        action={action}
-        className="w-full max-w-sm space-y-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-lg backdrop-blur"
-      >
+      <div className="ambient" aria-hidden />
+      <form action={action} className="glass-card w-full max-w-sm space-y-4 p-8">
         <div>
-          <h1 className="text-xl font-bold text-[var(--heading)]">VitalBridge RX PMO</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-[var(--heading)]">VitalBridge RX PMO</h1>
           <p className="text-sm text-[var(--muted)]">Sign in to continue</p>
         </div>
 
@@ -44,7 +42,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-lg bg-[var(--accent)] px-4 py-2 font-semibold text-white disabled:opacity-60"
+          className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 font-semibold text-white shadow-lg shadow-indigo-500/30 transition-transform hover:-translate-y-0.5 disabled:opacity-60"
         >
           {pending ? "Signing in..." : "Sign in"}
         </button>

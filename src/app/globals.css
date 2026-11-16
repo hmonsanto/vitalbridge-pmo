@@ -2,28 +2,143 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --bg: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 50%, #ecfeff 100%);
-  --card: rgba(255, 255, 255, 0.75);
-  --border: rgba(99, 102, 241, 0.18);
-  --text: #1e293b;
-  --muted: #64748b;
-  --heading: #1e1b4b;
+  /* Surfaces */
+  --bg-base: #e6e8ff;
+  --card: rgba(255, 255, 255, 0.62);
+  --card-border: rgba(255, 255, 255, 0.78);
+  --border: rgba(99, 102, 241, 0.2);
+  --shadow: 0 8px 32px rgba(76, 60, 170, 0.14);
+
+  /* Text */
+  --heading: #0f1a5c;
+  --text: #1e2a4a;
+  --muted: #5d6a8f;
+
+  /* Accent and rail */
   --accent: #4f46e5;
-  --track: #e2e8f0;
+  --track: rgba(99, 102, 241, 0.16);
+  --rail-from: #4a35a8;
+  --rail-to: #1f1757;
+  --pill: #5a1738;
+  --glow-a: rgba(167, 139, 250, 0.55);
+  --glow-b: rgba(110, 231, 183, 0.4);
+  --glow-c: rgba(253, 186, 116, 0.35);
 }
+
 .dark {
-  --bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-  --card: rgba(30, 41, 59, 0.7);
-  --border: rgba(148, 163, 184, 0.2);
-  --text: #e2e8f0;
-  --muted: #94a3b8;
-  --heading: #f1f5f9;
-  --accent: #818cf8;
-  --track: #334155;
+  --bg-base: #0d0b24;
+  --card: rgba(36, 32, 84, 0.55);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --border: rgba(165, 180, 252, 0.22);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --heading: #f1f3ff;
+  --text: #dfe3ff;
+  --muted: #9aa3d6;
+  --accent: #a5b4fc;
+  --track: rgba(165, 180, 252, 0.18);
+  --rail-from: #2a1f6b;
+  --rail-to: #120d34;
+  --pill: #7c2250;
+  --glow-a: rgba(124, 58, 237, 0.4);
+  --glow-b: rgba(20, 184, 166, 0.22);
+  --glow-c: rgba(244, 114, 182, 0.2);
 }
+
 body {
-  background: var(--bg);
-  background-attachment: fixed;
+  background: var(--bg-base);
   color: var(--text);
   min-height: 100vh;
+}
+
+/* Ambient background: soft colored glows that drift slowly. */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background:
+    radial-gradient(60rem 40rem at 85% -10%, var(--glow-a), transparent 60%),
+    radial-gradient(50rem 40rem at -10% 110%, var(--glow-b), transparent 60%),
+    radial-gradient(40rem 30rem at 60% 100%, var(--glow-c), transparent 65%);
+}
+.ambient::before,
+.ambient::after {
+  content: "";
+  position: absolute;
+  width: 34rem;
+  height: 34rem;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.55;
+  animation: drift 22s ease-in-out infinite alternate;
+}
+.ambient::before {
+  top: 8%;
+  left: 18%;
+  background: var(--glow-a);
+}
+.ambient::after {
+  bottom: 4%;
+  right: 12%;
+  background: var(--glow-b);
+  animation-duration: 28s;
+  animation-direction: alternate-reverse;
+}
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(5%, 7%, 0) scale(1.15);
+  }
+}
+
+/* Frosted glass surface used by every card. */
+.glass-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
+/* Navigation rail */
+.rail {
+  background: linear-gradient(180deg, var(--rail-from), var(--rail-to));
+  box-shadow: 8px 0 40px rgba(31, 23, 87, 0.25);
+}
+
+/* Table rows lift gently on hover. */
+.row-hover {
+  transition: background-color 0.2s ease;
+}
+.row-hover:hover {
+  background: rgba(99, 102, 241, 0.07);
+}
+
+/* Soft pulse for critical indicators. */
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+.pulse-critical {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient::before,
+  .ambient::after,
+  .pulse-critical {
+    animation: none;
+  }
 }

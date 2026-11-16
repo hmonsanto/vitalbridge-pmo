@@ -31,7 +31,9 @@ test.describe("owner", () => {
     await expect(page.locator('li[data-state="complete"]')).toHaveCount(1);
 
     await page.goto("/hospitals");
-    await expect(page.getByText(name)).toBeVisible();
+    // The hospital shows up both as a project tab and as a card in the list.
+    await expect(page.getByRole("navigation", { name: "Hospitals" }).getByRole("link", { name })).toBeVisible();
+    await expect(page.getByRole("link", { name })).toHaveCount(2);
   });
 
   test("a Stop decision does not advance the phase", async ({ page }) => {

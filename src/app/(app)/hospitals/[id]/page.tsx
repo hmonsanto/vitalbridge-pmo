@@ -1,16 +1,8 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionRole } from "@/lib/auth";
-import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
-import { Stepper } from "@/components/ui/Stepper";
 import type { GateDecision } from "@/domain/gates";
-import { DeliverablesTable } from "./DeliverablesTable";
-import { AddDeliverableForm } from "./AddDeliverableForm";
-import { GateDecisionForm } from "./GateDecisionForm";
-import { RisksCard } from "./RisksCard";
-import { DependenciesCard } from "./DependenciesCard";
-import { BaselinePanel } from "./BaselinePanel";
+import { HospitalView } from "./HospitalView";
 
 export default async function HospitalPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -38,32 +30,16 @@ export default async function HospitalPage({ params }: { params: Promise<{ id: s
     if (g.decision) gateByPhase[Number(g.code.slice(1))] = g.decision as GateDecision;
   }
 
-  const isOwner = role === "owner";
-  const phase = project.current_phase as number;
-
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <h2 className="text-xl font-bold text-[var(--heading)]">{project.name}</h2>
-        <Badge tone="info">Scenario {project.scenario}</Badge>
-      </div>
-
-      <Card title="Phases and gates">
-        <Stepper phases={(phases.data ?? []).map((p) => p.name)} current={phase} gates={gateByPhase} />
-        {isOwner && phase <= 5 && <GateDecisionForm projectId={id} phase={phase} />}
-      </Card>
-
-      <Card title="Deliverables" delay={0.1}>
-        <DeliverablesTable projectId={id} rows={deliverables.data ?? []} editable={isOwner} />
-        {isOwner && <AddDeliverableForm projectId={id} />}
-      </Card>
-
-      <BaselinePanel projectId={id} rows={baseline.data ?? []} editable={isOwner} />
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <RisksCard projectId={id} risks={risks.data ?? []} editable={isOwner} />
-        <DependenciesCard projectId={id} dependencies={dependencies.data ?? []} editable={isOwner} />
-      </div>
-    </div>
+    <HospitalView
+      project={project}
+      phaseNames={(phases.data ?? []).map((p) => p.name)}
+      gateByPhase={gateByPhase}
+      deliverables={deliverables.data ?? []}
+      baseline={baseline.data ?? []}
+      risks={risks.data ?? []}
+      dependencies={dependencies.data ?? []}
+      isOwner={role === "owner"}
+    />
   );
 }

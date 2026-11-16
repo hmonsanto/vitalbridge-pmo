@@ -13,15 +13,32 @@ const FIELD = "rounded-lg border border-[var(--border)] bg-white/70 px-3 py-2 te
 function TrendChart({ rows }: { rows: BaselineRow[] }) {
   if (rows.length < 2) return null;
   const W = 320;
-  const H = 90;
-  const max = Math.max(...rows.flatMap((r) => [r.baseline, r.actual]), 1);
-  const x = (i: number) => (i / (rows.length - 1)) * (W - 8) + 4;
-  const y = (v: number) => H - 6 - (v / max) * (H - 12);
-  const line = (key: "baseline" | "actual") => rows.map((r, i) => `${x(i)},${y(r[key])}`).join(" ");
+  const H = 110;
+  const values = rows.flatMap((r) => [r.baseline, r.actual]);
+  const lo = Math.min(...values);
+  const hi = Math.max(...values);
+  const span = hi - lo || 1; // flat data still draws a centered line
+  const x = (i: number) => (i / (rows.length - 1)) * (W - 16) + 8;
+  const y = (v: number) => H - 14 - ((v - lo) / span) * (H - 28);
+  const pts = (key: "baseline" | "actual") => rows.map((r, i) => `${x(i)},${y(r[key])}`).join(" ");
+  const area = `${x(0)},${H - 6} ${pts("actual")} ${x(rows.length - 1)},${H - 6}`;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="mt-3 h-24 w-full" role="img" aria-label="Baseline versus actual trend">
-      <polyline points={line("baseline")} fill="none" stroke="var(--muted)" strokeWidth="2" strokeDasharray="4 3" />
-      <polyline points={line("actual")} fill="none" stroke="var(--accent)" strokeWidth="2.5" />
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      className="mt-3 h-28 w-full"
+      role="img"
+      aria-label="Baseline versus actual trend"
+    >
+      <defs>
+        <linearGradient id="actual-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={area} fill="url(#actual-fill)" />
+      <polyline points={pts("baseline")} fill="none" stroke="var(--muted)" strokeWidth="2" strokeDasharray="5 4" vectorEffect="non-scaling-stroke" />
+      <polyline points={pts("actual")} fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }
@@ -74,8 +91,8 @@ export function BaselinePanel({ projectId, rows, editable }: { projectId: string
       )}
 
       {editable && (
-        <form action={action} noValidate className="mt-4 flex flex-wrap items-end gap-3 border-t border-[var(--border)] pt-4">
-          <div className="flex flex-col gap-1">
+        <form action={action} noValidate className="mt-4 grid grid-cols-2 items-end gap-3 border-t border-[var(--border)] pt-4">
+          <div className="col-span-2 flex flex-col gap-1">
             <label htmlFor="b-month" className="text-xs font-medium">Month</label>
             <input id="b-month" name="month" type="month" className={FIELD} />
           </div>
@@ -90,7 +107,7 @@ export function BaselinePanel({ projectId, rows, editable }: { projectId: string
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+            className="col-span-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
           >
             Add entry
           </button>
