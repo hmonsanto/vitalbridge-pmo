@@ -36,3 +36,9 @@ export const loginSchema = z.object({
 });
 
 export const totpCodeSchema = z.string().trim().regex(/^\d{6}$/);
+
+export const dependencySchema = z.object({
+  title: text(200),
+  type: z.enum(["license", "dea", "340b", "payer", "accreditation", "other"]),
+  due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});

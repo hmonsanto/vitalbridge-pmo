@@ -42,3 +42,17 @@ describe("loginSchema", () => {
     expect(r.success && r.data.email).toBe("a@b.co");
   });
 });
+
+import { dependencySchema } from "@/lib/validation";
+
+describe("dependencySchema", () => {
+  test("rejects an unknown type", () => {
+    expect(dependencySchema.safeParse({ title: "x", type: "visa", due_date: "2027-01-01" }).success).toBe(false);
+  });
+  test("rejects a malformed due date", () => {
+    expect(dependencySchema.safeParse({ title: "x", type: "dea", due_date: "tomorrow" }).success).toBe(false);
+  });
+  test("accepts a valid dependency", () => {
+    expect(dependencySchema.safeParse({ title: "DEA", type: "dea", due_date: "2027-01-01" }).success).toBe(true);
+  });
+});
