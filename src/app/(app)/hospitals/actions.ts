@@ -61,6 +61,7 @@ export async function addDeliverable(projectId: string, _prev: FormState, formDa
 
   await recordAudit("create", "deliverables", data.id);
   revalidatePath(`/hospitals/${projectId}`);
+  revalidatePath("/pmo");
   return { ok: true };
 }
 
@@ -75,6 +76,7 @@ export async function setDeliverableStatus(projectId: string, deliverableId: str
 
   await recordAudit("update", "deliverables", deliverableId);
   revalidatePath(`/hospitals/${projectId}`);
+  revalidatePath("/pmo");
   return { ok: true };
 }
 
@@ -104,5 +106,6 @@ export async function decideGate(projectId: string, _prev: FormState, formData: 
 
   await recordAudit("gate_decision", "gates", `${projectId}:G${phase}`);
   revalidatePath(`/hospitals/${projectId}`);
+  revalidatePath("/pmo");
   return { ok: true };
 }

@@ -31,6 +31,7 @@ export async function addRisk(projectId: string, _prev: FormState, formData: For
 
   await recordAudit("create", "risks", data.id);
   revalidatePath(`/hospitals/${projectId}`);
+  revalidatePath("/pmo");
   revalidatePath("/");
   return { ok: true };
 }
@@ -54,6 +55,7 @@ export async function addDependency(projectId: string, _prev: FormState, formDat
 
   await recordAudit("create", "dependencies", data.id);
   revalidatePath(`/hospitals/${projectId}`);
+  revalidatePath("/pmo");
   revalidatePath("/calendar");
   revalidatePath("/");
   return { ok: true };
@@ -66,6 +68,7 @@ export async function markDependencyDone(projectId: string, dependencyId: string
   if (error) return;
   await recordAudit("update", "dependencies", dependencyId);
   revalidatePath(`/hospitals/${projectId}`);
+  revalidatePath("/pmo");
   revalidatePath("/calendar");
   revalidatePath("/");
 }
@@ -93,5 +96,6 @@ export async function addBaselineEntry(projectId: string, _prev: FormState, form
 
   await recordAudit("create", "baseline_entries", data!.id);
   revalidatePath(`/hospitals/${projectId}`);
+  revalidatePath("/pmo");
   return { ok: true };
 }

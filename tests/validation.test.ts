@@ -56,3 +56,23 @@ describe("dependencySchema", () => {
     expect(dependencySchema.safeParse({ title: "DEA", type: "dea", due_date: "2027-01-01" }).success).toBe(true);
   });
 });
+
+import { todoSchema, meetingSchema } from "@/lib/validation";
+
+describe("todoSchema", () => {
+  test("rejects an empty title", () => {
+    expect(todoSchema.safeParse({ title: " " }).success).toBe(false);
+  });
+  test("accepts a title with an optional due date", () => {
+    expect(todoSchema.safeParse({ title: "Call Ned", due_date: "2027-01-05" }).success).toBe(true);
+  });
+});
+
+describe("meetingSchema", () => {
+  test("rejects an invalid start time", () => {
+    expect(meetingSchema.safeParse({ title: "Sync", starts_at: "later" }).success).toBe(false);
+  });
+  test("accepts an ISO start time", () => {
+    expect(meetingSchema.safeParse({ title: "Sync", starts_at: "2027-01-05T10:00:00.000Z" }).success).toBe(true);
+  });
+});

@@ -42,3 +42,13 @@ export const dependencySchema = z.object({
   type: z.enum(["license", "dea", "340b", "payer", "accreditation", "other"]),
   due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
+
+export const todoSchema = z.object({
+  title: text(200),
+  due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+});
+
+export const meetingSchema = z.object({
+  title: text(200),
+  starts_at: z.string().datetime(),
+});

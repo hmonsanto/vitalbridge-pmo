@@ -6,3 +6,4 @@ export function canAdvance(phase: number, decision: GateDecision | null): boolea
   if (phase >= LAST_PHASE) return false;
   return decision === "go" || decision === "go_with_conditions";
 }
+export const PMO_GATES = ["G0", "G1", "G2", "G3", "G4", "G5"] as const;
