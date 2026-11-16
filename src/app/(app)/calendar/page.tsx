@@ -1,58 +1,109 @@
 import { createClient } from "@/lib/supabase/server";
-import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
+import { getSessionRole } from "@/lib/auth";
+import { CalendarView, type UpcomingDependency } from "@/components/calendar/CalendarView";
+import type { CalendarEvent } from "@/components/calendar/types";
+import { groupByDay, monthGrid, monthKey, parseDay, parseMonth } from "@/domain/calendar";
 import { isOverdue } from "@/domain/dependencies";
 import { next340bWindow } from "@/domain/windows340b";
 
-const fmt = (d: Date) => d.toISOString().slice(0, 10);
+type Named = { id: string; name: string } | null;
 
-export default async function CalendarPage() {
+const pad = (n: number) => String(n).padStart(2, "0");
+// Meetings are entered and shown in the server's time zone, so their day is read the same way.
+const localDay = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const fmtDate = (d: Date) => d.toISOString().slice(0, 10);
+const DAY_MS = 86_400_000;
+const KIND_ORDER = { meeting: 0, dependency: 1, todo: 2 } as const;
+
+export default async function CalendarPage({ searchParams }: { searchParams: Promise<{ m?: string; d?: string }> }) {
+  const { m, d } = await searchParams;
+  const now = new Date();
+  const today = localDay(now);
+  const ym = parseMonth(m, now);
+  const weeks = monthGrid(ym);
+  const rangeStart = weeks[0][0].date;
+  const rangeEnd = weeks[weeks.length - 1][6].date;
+
+  // With no valid day in the URL, open today's panel when the visible month contains it.
+  const requested = parseDay(d);
+  const selected = requested ?? (today.startsWith(monthKey(ym)) ? today : null);
+
+  // Meetings are stored in UTC; widen the query by a day on each side and filter by local day afterwards.
+  const meetingFrom = fmtDate(new Date(new Date(`${rangeStart}T00:00:00Z`).getTime() - DAY_MS));
+  const meetingTo = fmtDate(new Date(new Date(`${rangeEnd}T00:00:00Z`).getTime() + 2 * DAY_MS));
+
   const supabase = await createClient();
-  const window340b = next340bWindow(new Date());
-  const { data: deps } = await supabase
-    .from("dependencies")
-    .select("id, title, type, due_date, status, projects(name)")
-    .neq("status", "done")
-    .order("due_date");
+  const [role, deps, meetings, todos, upcoming, hospitals] = await Promise.all([
+    getSessionRole(),
+    supabase
+      .from("dependencies")
+      .select("id, title, type, due_date, status, projects(id, name)")
+      .gte("due_date", rangeStart)
+      .lte("due_date", rangeEnd)
+      .neq("status", "done"),
+    supabase.from("meetings").select("id, title, starts_at").gte("starts_at", meetingFrom).lt("starts_at", meetingTo),
+    supabase.from("todos").select("id, title, due_date").eq("done", false).gte("due_date", rangeStart).lte("due_date", rangeEnd),
+    supabase
+      .from("dependencies")
+      .select("id, title, type, due_date, status, projects(id, name)")
+      .neq("status", "done")
+      .order("due_date")
+      .limit(8),
+    supabase.from("projects").select("id, name").eq("kind", "hospital").order("name"),
+  ]);
+
+  const events: CalendarEvent[] = [
+    ...(deps.data ?? []).map((x) => {
+      const p = x.projects as unknown as Named;
+      return {
+        id: x.id,
+        date: x.due_date,
+        kind: "dependency" as const,
+        title: x.title,
+        detail: `${p?.name ?? ""} · ${x.type}`,
+        overdue: isOverdue(x.due_date, x.status),
+        href: p ? `/hospitals/${p.id}` : undefined,
+      };
+    }),
+    ...(meetings.data ?? [])
+      .map((x) => ({ x, at: new Date(x.starts_at) }))
+      .filter(({ at }) => localDay(at) >= rangeStart && localDay(at) <= rangeEnd)
+      .map(({ x, at }) => ({
+        id: x.id,
+        date: localDay(at),
+        kind: "meeting" as const,
+        title: x.title,
+        detail: at.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+      })),
+    ...(todos.data ?? []).map((x) => ({
+      id: x.id,
+      date: x.due_date as string,
+      kind: "todo" as const,
+      title: x.title,
+    })),
+  ].sort((a, b) => KIND_ORDER[a.kind] - KIND_ORDER[b.kind] || a.title.localeCompare(b.title));
+
+  const win = next340bWindow(now);
+  const upcomingList: UpcomingDependency[] = (upcoming.data ?? []).map((x) => ({
+    id: x.id,
+    title: x.title,
+    type: x.type,
+    due_date: x.due_date,
+    status: x.status,
+    project: (x.projects as unknown as Named)?.name ?? "",
+  }));
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold text-[var(--heading)]">Calendar</h2>
-
-      <Card title="340B registration window">
-        <p className="text-sm">
-          {fmt(window340b.start)} to {fmt(window340b.end)}{" "}
-          <Badge tone={window340b.isOpen ? "ok" : "warn"}>
-            {window340b.isOpen ? "Open now" : `Opens ${fmt(window340b.start)}`}
-          </Badge>
-        </p>
-        <p className="mt-2 text-xs text-[var(--muted)]">
-          New 340B registrations are accepted only from the 1st to the 15th of January, April, July and October.
-        </p>
-      </Card>
-
-      <Card title="Dependency deadlines" delay={0.1}>
-        {(deps ?? []).length === 0 ? (
-          <p className="text-sm text-[var(--muted)]">No open dependencies.</p>
-        ) : (
-          <ul className="space-y-2 text-sm">
-            {deps!.map((d) => (
-              <li key={d.id} className="flex items-center justify-between gap-3">
-                <span>
-                  <span className="font-medium">{d.title}</span>
-                  <span className="ml-2 text-xs text-[var(--muted)]">
-                    {(d.projects as unknown as { name: string } | null)?.name} · {d.type}
-                  </span>
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="text-xs">{d.due_date}</span>
-                  {isOverdue(d.due_date, d.status) && <Badge tone="danger">Overdue</Badge>}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
-    </div>
+    <CalendarView
+      ym={ym}
+      weeks={weeks}
+      eventsByDay={groupByDay(events)}
+      today={today}
+      selected={selected}
+      upcoming={upcomingList}
+      window340b={{ start: fmtDate(win.start), end: fmtDate(win.end), isOpen: win.isOpen }}
+      hospitals={hospitals.data ?? []}
+      isOwner={role === "owner"}
+    />
   );
 }

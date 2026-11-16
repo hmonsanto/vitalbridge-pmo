@@ -61,6 +61,7 @@ test.describe("calendar", () => {
     await page.goto("/calendar");
     await expect(page.getByText("340B registration window")).toBeVisible();
     await expect(page.getByText(/Open now|Opens/)).toBeVisible();
-    await expect(page.getByText("340B enrollment")).toBeVisible();
+    // The same dependency can also appear as a chip in the month grid, so look in the deadlines list.
+    await expect(page.getByRole("list", { name: "Dependency deadlines" }).getByText("340B enrollment")).toBeVisible();
   });
 });

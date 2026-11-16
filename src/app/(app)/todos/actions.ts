@@ -23,6 +23,7 @@ export async function addTodo(_prev: FormState, formData: FormData): Promise<For
 
   await recordAudit("create", "todos", data.id);
   revalidatePath("/todos");
+  revalidatePath("/calendar");
   revalidatePath("/");
   return { ok: true };
 }
@@ -34,6 +35,7 @@ export async function toggleTodo(todoId: string, done: boolean): Promise<void> {
   if (error) return;
   await recordAudit("update", "todos", todoId);
   revalidatePath("/todos");
+  revalidatePath("/calendar");
   revalidatePath("/");
 }
 
@@ -52,6 +54,7 @@ export async function addMeeting(_prev: FormState, formData: FormData): Promise<
 
   await recordAudit("create", "meetings", data.id);
   revalidatePath("/todos");
+  revalidatePath("/calendar");
   revalidatePath("/");
   return { ok: true };
 }
