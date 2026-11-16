@@ -29,3 +29,10 @@ export const baselineEntrySchema = z.object({
   baseline: z.number().min(0),
   actual: z.number().min(0),
 });
+
+export const loginSchema = z.object({
+  email: z.string().trim().email().max(254),
+  password: z.string().min(1).max(200),
+});
+
+export const totpCodeSchema = z.string().trim().regex(/^\d{6}$/);

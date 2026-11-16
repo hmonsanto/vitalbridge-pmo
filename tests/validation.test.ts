@@ -27,3 +27,18 @@ describe("baselineEntrySchema", () => {
     expect(baselineEntrySchema.safeParse({ month: "soon", baseline: 1, actual: 5 }).success).toBe(false);
   });
 });
+
+import { loginSchema } from "@/lib/validation";
+
+describe("loginSchema", () => {
+  test("rejects a malformed email", () => {
+    expect(loginSchema.safeParse({ email: "not-an-email", password: "x" }).success).toBe(false);
+  });
+  test("rejects an empty password", () => {
+    expect(loginSchema.safeParse({ email: "a@b.co", password: "" }).success).toBe(false);
+  });
+  test("accepts valid credentials and trims the email", () => {
+    const r = loginSchema.safeParse({ email: " a@b.co ", password: "secret" });
+    expect(r.success && r.data.email).toBe("a@b.co");
+  });
+});
