@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE_OPTIONS } from "./cookie-options";
 
-const GUARDED = ["/hospitals", "/pmo", "/calendar", "/todos", "/mfa"];
+const GUARDED = ["/hospitals", "/pmo", "/calendar", "/todos", "/account", "/mfa"];
 
 /** Only real app routes are guarded; unknown paths fall through to a plain 404 (no data to protect). */
 export function isGuardedPath(path: string): boolean {

@@ -48,6 +48,8 @@ export default async function globalSetup() {
     const code = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(secret), digits: 6, period: 30 }).generate();
     await op.getByLabel("Code").fill(code);
     await op.getByRole("button", { name: "Verify" }).click();
+    // First-time enrolment now shows the recovery codes once; confirm like a person would.
+    await op.getByRole("button", { name: "I have saved my codes" }).click();
     await op.waitForURL(`${BASE_URL}/`);
     await ownerCtx.storageState({ path: OWNER_STATE });
   } finally {

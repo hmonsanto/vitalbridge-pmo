@@ -64,7 +64,34 @@ Connect the repository to Vercel and deploy. Vercel serves HTTPS only; the app a
 
 - Practice one restore into a scratch project before relying on it.
 
-## 6. Local development
+## 6. Password and MFA recovery (one-time setup per Supabase project)
+
+The app has "Forgot password", an Account page and MFA recovery codes. They need the following in the Supabase project.
+Do these **before** relying on them in production.
+
+1. **Apply the new migration** (creates the recovery-code tables and functions). From the project folder:
+
+   ```bash
+   npx supabase link --project-ref <your-project-ref>
+   npx supabase db push --remote --dry-run   # must list 0003_mfa_recovery.sql only
+   npx supabase db push --remote
+   ```
+
+2. **Reset-password email template.** In **Authentication > Emails > Templates > Reset Password**, set the subject to
+   `Reset your VitalBridge RX PMO password` and paste the body from `supabase/templates/recovery.html`. The link in it
+   **must** be exactly `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery`: the default template links to
+   a different address that this app does not use.
+3. **Site URL.** In **Authentication > URL Configuration**, the Site URL must be the production address
+   (`https://vitalbridge-pmo.vercel.app`). The emailed link is built from it.
+4. **Password length.** In **Authentication > Sign In / Providers > Email**, set **Minimum password length** to `12`
+   (the app already enforces 12 to 72 characters; this makes Supabase agree).
+5. **Email delivery.** Supabase's built-in mail service delivers **only to members of your Supabase organization** and allows
+   a few messages per hour. That is enough for the owner. For anyone else (Ned), set up your own SMTP provider in
+   **Authentication > Emails > SMTP Settings** (for example Resend or Amazon SES) and verify the sending domain.
+6. **Try it.** Sign out, use "Forgot password?" with your own email, and complete the reset. Then sign in, open
+   **Account**, and generate your recovery codes. Store them in your password manager.
+
+## 7. Local development
 
 ```bash
 npx supabase start                                        # needs Docker Desktop

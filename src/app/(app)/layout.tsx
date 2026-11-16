@@ -8,9 +8,10 @@ import { AppShell } from "@/components/shell/AppShell";
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   // Independent lookups run together instead of one after the other.
-  const [session, deliverables] = await Promise.all([
+  const [session, deliverables, codes] = await Promise.all([
     getSession(),
     supabase.from("deliverables").select("status"),
+    supabase.rpc("recovery_codes_remaining"),
   ]);
   if (!session?.role) redirect("/login");
 
@@ -25,6 +26,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         total: statuses.length,
       }}
       signOutAction={signOut}
+      recoveryReminder={session.role === "owner" && codes.data === 0}
     >
       {children}
     </AppShell>

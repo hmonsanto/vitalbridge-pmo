@@ -64,3 +64,10 @@ export const deliverableEditSchema = deliverableSchema.omit({ status: true });
 export const dependencyEditSchema = dependencySchema.extend({
   status: z.enum(["pending", "in_progress", "done", "blocked"]),
 });
+
+export const emailSchema = z.string().trim().email().max(254);
+
+/** 12 characters minimum; 72 is bcrypt's input limit, beyond which extra characters would be silently ignored. */
+export const newPasswordSchema = z
+  .object({ password: z.string().min(12).max(72), confirm: z.string() })
+  .refine((d) => d.password === d.confirm, { path: ["confirm"], message: "Passwords do not match" });

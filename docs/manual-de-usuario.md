@@ -40,11 +40,30 @@ Esto no es solo visual: la base de datos rechaza cualquier escritura de un Viewe
 - **No escriba datos de pacientes** en ningún campo. El sistema está diseñado solo para información comercial y de gestión.
 - Tras 5 intentos fallidos de contraseña en 15 minutos, el login se bloquea temporalmente.
 
+### Contraseña y recuperación de acceso
+
+**Cambiar su contraseña (sabiendo la actual).** Pulse **"Account"** en el riel lateral → tarjeta "Password" → escriba la contraseña actual y la nueva dos veces → "Change password". La nueva debe tener **entre 12 y 72 caracteres**; una frase larga es más fuerte y más fácil de recordar. Al cambiarla, se cierran las sesiones abiertas en otros dispositivos.
+
+**Olvidé mi contraseña.**
+1. En la pantalla de inicio pulse **"Forgot password?"**, escriba su email y pulse "Send reset link".
+2. Le llega un correo con el botón **"Choose a new password"**. El enlace funciona **una sola vez** y caduca pronto.
+3. Se abre una página con el botón **"Continue"**: púlselo (esto evita que los antivirus de correo "gasten" el enlace).
+4. **Si tiene verificación en dos pasos**, primero le pedirá el código de su app autenticadora ("Confirm it's you"); solo después podrá elegir la nueva contraseña.
+5. Escriba la contraseña nueva dos veces y pulse "Update password".
+
+La pantalla siempre responde lo mismo ("If an account exists…"), exista o no la cuenta: así nadie puede averiguar qué correos están registrados. **Si el correo no llega**, revise la carpeta de spam y vea el aviso sobre correo al final de este manual.
+
+**Perdí el teléfono (código TOTP).** Existen los **códigos de recuperación**: 10 códigos de un solo uso.
+- **Cuándo se crean:** al activar la verificación en dos pasos, la aplicación los muestra **una sola vez** ("Save your recovery codes"). Cópielos o descárguelos y guárdelos en su gestor de contraseñas. **No se vuelven a mostrar.**
+- **Si ya tenía MFA antes de esta función**, aún no tiene códigos: en **Account → "Two-step verification" → "Generate new recovery codes"** se crean (un aviso amarillo en la parte superior se lo recuerda hasta que lo haga). Generar códigos nuevos **reemplaza** a los anteriores.
+- **Cómo usarlos:** inicie sesión con su contraseña; en la pantalla del código pulse **"Lost your authenticator? Use a recovery code"**, escriba un código y pulse "Use recovery code". La aplicación quita el autenticador perdido y lo envía a iniciar sesión de nuevo, donde configurará uno nuevo (y recibirá 10 códigos nuevos).
+- **Importante:** al usar un código, **todos los demás se invalidan**. Tras 5 intentos erróneos en 15 minutos, se bloquean más intentos un rato.
+
 ---
 
 ## 3. Cómo está organizada la pantalla
 
-**Riel lateral izquierdo (burdeos):** Portfolio · Hospitals · PMO · Calendar. En la parte de abajo: su rol, el botón de modo claro/oscuro (se recuerda) y "Sign out".
+**Riel lateral izquierdo (burdeos):** Portfolio · Hospitals · PMO · Calendar. En la parte de abajo: su rol, el botón de modo claro/oscuro (se recuerda), **"Account"** (contraseña y códigos de recuperación) y "Sign out".
 
 **Encabezado:** a la derecha, "Overall completion" muestra el porcentaje de **entregables completados** entre todos los proyectos (hospitales y PMO). Es un termómetro general, no una medida financiera.
 
@@ -273,9 +292,11 @@ Muestra **todos** los pendientes, con o sin fecha (la grilla solo muestra los qu
 
 **La primera pantalla tarda en cargar después de un rato sin usar.** El servidor "se duerme" por inactividad y tarda en despertar la primera vez (hasta uno o dos segundos). Las siguientes son rápidas.
 
-**Olvidé mi contraseña.** La aplicación todavía no tiene pantalla de recuperación. Hoy se restablece desde el panel de Supabase (Authentication → Users).
+**Olvidé mi contraseña.** Use "Forgot password?" en la pantalla de inicio (ver "Contraseña y recuperación de acceso"). Si el correo no llega a un usuario, el administrador (usted) puede restablecerla desde el panel de Supabase (Authentication → Users).
 
-**Perdí el teléfono con el código TOTP.** Use la clave secreta que guardó para configurarlo en otro teléfono. Si no la tiene, hay que eliminar el factor desde el panel de Supabase para volver a enrolarse.
+**Perdí el teléfono con el código TOTP.** Use uno de sus **códigos de recuperación** (ver "Contraseña y recuperación de acceso"). Alternativas si no los guardó: la clave secreta que anotó al activar el MFA sirve para configurarlo en otro teléfono; y como administrador del proyecto puede eliminar el factor desde el panel de Supabase (Authentication → Users) para volver a enrolarse. **Genere sus códigos hoy mismo**, antes de necesitarlos.
+
+**No me llega el correo de recuperación.** El servicio de correo gratuito de Supabase **solo entrega a los miembros de su organización** (es decir, a usted) y limita el número de envíos por hora. Para que funcione con otros usuarios, como Ned, hay que configurar un servicio de correo propio (SMTP). Mientras tanto, usted puede restablecer su contraseña desde el panel de Supabase.
 
 **Las horas de las reuniones.** Se muestran en la zona horaria del servidor (UTC en producción), la misma en que se escriben: lo que usted teclea es lo que ve. Hay una consecuencia: el cambio de "hoy" ocurre a medianoche UTC, que en UTC−4 (hora del Atlántico) es a las 8:00 p. m.
 
@@ -288,7 +309,8 @@ Conviene conocerlo para no perder tiempo buscándolo:
 - **Deshacer un borrado.** No hay papelera: lo borrado se pierde (queda solo la huella en el registro de auditoría).
 - **Editar las decisiones de las puertas ya superadas.** Una decisión se registra de nuevo solo mientras la puerta sigue siendo la actual; las anteriores no se reabren.
 - **Cambiar el mes de una entrada de línea base.** Se borra y se vuelve a cargar.
-- **Cambiar o recuperar la contraseña** y **restablecer el MFA** desde la aplicación.
+- **Recuperar la contraseña de otras personas por correo sin un SMTP propio** (ver las preguntas frecuentes).
+- **Activar la verificación en dos pasos por su cuenta si es Viewer**, o quitarla desde la aplicación sin un código de recuperación.
 - **Exportar** a Excel o PowerPoint, ni integrarse con Asana, Jira, Teams u Outlook.
 - **Comandos de voz** o asistente de IA (previstos como una fase posterior).
 - Crear usuarios nuevos: se hace desde el panel de Supabase.

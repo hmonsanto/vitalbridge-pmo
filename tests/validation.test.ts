@@ -114,3 +114,29 @@ describe("dependencyEditSchema", () => {
     expect(dependencyEditSchema.safeParse({ ...base, status: "in_progress" }).success).toBe(true);
   });
 });
+
+import { newPasswordSchema, emailSchema } from "@/lib/validation";
+
+describe("newPasswordSchema", () => {
+  const ok = "a-long-passphrase-1";
+  test("accepts a 12+ character password that matches its confirmation", () => {
+    expect(newPasswordSchema.safeParse({ password: ok, confirm: ok }).success).toBe(true);
+  });
+  test("rejects fewer than 12 characters", () => {
+    expect(newPasswordSchema.safeParse({ password: "short-pw-1", confirm: "short-pw-1" }).success).toBe(false);
+  });
+  test("rejects a confirmation that does not match", () => {
+    expect(newPasswordSchema.safeParse({ password: ok, confirm: `${ok}x` }).success).toBe(false);
+  });
+  test("rejects more than 72 characters (the bcrypt limit)", () => {
+    const long = "x".repeat(73);
+    expect(newPasswordSchema.safeParse({ password: long, confirm: long }).success).toBe(false);
+  });
+});
+
+describe("emailSchema", () => {
+  test("trims and accepts a valid email, rejects a malformed one", () => {
+    expect(emailSchema.safeParse(" a@b.co ").success).toBe(true);
+    expect(emailSchema.safeParse("nope").success).toBe(false);
+  });
+});
