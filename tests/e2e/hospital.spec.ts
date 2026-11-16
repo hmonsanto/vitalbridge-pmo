@@ -6,6 +6,14 @@ const DEMO_A = "/hospitals/00000000-0000-0000-0000-0000000000b1";
 test.describe("owner", () => {
   test.use({ storageState: OWNER_STATE });
 
+  test("offers a single Add Hospital action, not two", async ({ page }) => {
+    await page.goto("/hospitals");
+    await expect(page.getByRole("link", { name: "Add Hospital" })).toHaveCount(1);
+    await expect(page.getByRole("link", { name: /new hospital/i })).toHaveCount(0);
+    await page.getByRole("link", { name: "Add Hospital" }).click();
+    await expect(page).toHaveURL(/\/hospitals\/new$/);
+  });
+
   test("creating a hospital without a scenario shows a validation error", async ({ page }) => {
     await page.goto("/hospitals/new");
     await page.getByLabel("Name").fill("No Scenario Hospital");
@@ -65,6 +73,11 @@ test.describe("viewer", () => {
     await expect(page.getByRole("cell", { name: "Handover summary" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Add deliverable" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Record decision" })).toHaveCount(0);
+  });
+
+  test("does not see the Add Hospital action", async ({ page }) => {
+    await page.goto("/hospitals");
+    await expect(page.getByRole("link", { name: "Add Hospital" })).toHaveCount(0);
   });
 
   test("cannot open the create form", async ({ page }) => {

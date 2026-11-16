@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getSessionRole } from "@/lib/auth";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 
 export default async function HospitalsPage() {
   const supabase = await createClient();
-  const role = await getSessionRole();
   const { data: hospitals } = await supabase
     .from("projects")
     .select("id, name, scenario, current_phase")
@@ -15,14 +13,7 @@ export default async function HospitalsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-[var(--heading)]">Hospitals</h2>
-        {role === "owner" && (
-          <Link href="/hospitals/new" className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white">
-            New hospital
-          </Link>
-        )}
-      </div>
+      <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--heading)]">Hospitals</h2>
       {(hospitals ?? []).length === 0 ? (
         <Card><p className="text-sm text-[var(--muted)]">No hospitals yet.</p></Card>
       ) : (
