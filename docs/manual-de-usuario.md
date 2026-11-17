@@ -42,6 +42,8 @@ Esto no es solo visual: la base de datos rechaza cualquier escritura de un Viewe
 
 ### Contraseña y recuperación de acceso
 
+**Su nombre.** En **Account → "Profile" → "Display name"** escriba su nombre y pulse "Save name". Es el que aparece en el menú de usuario y en el saludo ("Welcome, Henry" usa la primera palabra). Mientras no lo defina, se usa el principio de su correo, y un enlace "Add your name" bajo el saludo se lo recuerda.
+
 **Cambiar su contraseña (sabiendo la actual).** Pulse **"Account"** en el riel lateral → tarjeta "Password" → escriba la contraseña actual y la nueva dos veces → "Change password". La nueva debe tener **entre 12 y 72 caracteres**; una frase larga es más fuerte y más fácil de recordar. Al cambiarla, se cierran las sesiones abiertas en otros dispositivos.
 
 **Olvidé mi contraseña.**
@@ -63,7 +65,7 @@ La pantalla siempre responde lo mismo ("If an account exists…"), exista o no l
 
 ## 3. Cómo está organizada la pantalla
 
-**Riel lateral izquierdo (burdeos):** Portfolio · Hospitals · PMO · Calendar. En la parte de abajo: su rol, el botón de modo claro/oscuro (se recuerda), **"Account"** (contraseña y códigos de recuperación) y "Sign out".
+**Riel lateral izquierdo (burdeos):** Portfolio · Hospitals · PMO · Calendar. En la parte de abajo está **su menú de usuario**: su nombre, sus iniciales y su rol (Owner o Viewer). Al pulsarlo se abre un menú con **"Account"** (nombre, contraseña y códigos de recuperación), el cambio de **modo claro/oscuro** (se recuerda) y **"Sign out"**. Se cierra con la tecla Esc o pulsando fuera.
 
 **Encabezado:** a la derecha, "Overall completion" muestra el porcentaje de **entregables completados** entre todos los proyectos (hospitales y PMO). Es un termómetro general, no una medida financiera.
 

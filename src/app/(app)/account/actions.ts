@@ -5,7 +5,7 @@ import { createClient as createPlainClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { recordAudit } from "@/lib/audit";
 import { rateLimit } from "@/lib/rate-limit";
-import { newPasswordSchema } from "@/lib/validation";
+import { displayNameSchema, newPasswordSchema } from "@/lib/validation";
 
 export type AccountState = { error?: string; ok?: boolean; codes?: string[] } | undefined;
 
@@ -60,4 +60,22 @@ export async function generateRecoveryCodes(): Promise<AccountState> {
   await recordAudit("recovery_codes_generated");
   revalidatePath("/", "layout"); // the "save your codes" reminder depends on this
   return { codes: data as string[] };
+}
+
+/** Saves the signed-in person's own display name. The database lets each person change only this field of their own row. */
+export async function updateDisplayName(_prev: AccountState, formData: FormData): Promise<AccountState> {
+  const parsed = displayNameSchema.safeParse(formData.get("name"));
+  if (!parsed.success) return { error: "Enter a name of 1 to 80 characters" };
+
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  const id = data?.claims?.sub;
+  if (!id) return { error: "You are not signed in" };
+
+  const { data: rows, error } = await supabase.from("profiles").update({ full_name: parsed.data }).eq("id", id).select("id");
+  if (error || !rows?.length) return { error: "Could not save your name" };
+
+  await recordAudit("profile_update", "profiles", id);
+  revalidatePath("/", "layout"); // the menu and the greeting both show it
+  return { ok: true };
 }

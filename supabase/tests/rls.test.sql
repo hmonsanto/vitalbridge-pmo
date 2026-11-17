@@ -39,10 +39,10 @@ select throws_ok(
   $$insert into public.baseline_entries (project_id, month, baseline, actual)
     values ('99999999-9999-9999-9999-999999999999', '2030-02-01', 1, 1)$$,
   '42501', null, 'viewer cannot insert baseline entries');
-select is_empty(
+select throws_ok(
   $$update public.profiles set role = 'owner'
-    where id = '22222222-2222-2222-2222-222222222222' returning 1$$,
-  'viewer cannot promote self to owner');
+    where id = '22222222-2222-2222-2222-222222222222'$$,
+  '42501', null, 'viewer cannot promote self to owner');
 select is((select count(*) from public.audit_log), 0::bigint, 'viewer reads no audit log rows');
 select lives_ok(
   $$insert into public.audit_log (actor, action)
@@ -63,10 +63,10 @@ select isnt_empty(
 select isnt_empty(
   $$delete from public.baseline_entries returning 1$$, 'owner can delete baseline entries');
 select ok((select count(*) from public.audit_log) > 0, 'owner reads audit log');
-select is_empty(
+select throws_ok(
   $$update public.profiles set role = 'viewer'
-    where id = '22222222-2222-2222-2222-222222222222' returning 1$$,
-  'owner cannot change roles through the API');
+    where id = '22222222-2222-2222-2222-222222222222'$$,
+  '42501', null, 'owner cannot change roles through the API');
 select ok(public.is_owner(), 'is_owner() is true for owner');
 
 select * from finish();

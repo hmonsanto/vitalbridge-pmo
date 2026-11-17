@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <AppShell
-      role={session.role}
+      user={{ name: session.name, role: session.role, hasName: session.hasName }}
       completion={{
         percent: completionRate(statuses),
         done: statuses.filter((s) => s === "completed").length,

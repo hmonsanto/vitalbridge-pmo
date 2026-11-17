@@ -66,3 +66,20 @@ test("session cookies are httpOnly", async () => {
   expect(session.length).toBeGreaterThan(0);
   for (const c of session) expect(c.httpOnly, c.name).toBe(true);
 });
+
+test("a user can change their own display name through the API, but never their role", async () => {
+  const client = createClient(url(), anon(), { auth: { persistSession: false } });
+  await client.auth.signInWithPassword({ email: VIEWER_EMAIL, password: process.env.E2E_PASSWORD! });
+  const { data: me } = await client.auth.getUser();
+
+  const rename = await client.from("profiles").update({ full_name: "Via API" }).eq("id", me.user!.id).select("full_name");
+  expect(rename.data?.[0]?.full_name).toBe("Via API");
+
+  const promote = await client.from("profiles").update({ role: "owner" }).eq("id", me.user!.id).select();
+  expect(promote.error).not.toBeNull();
+  const { data: profile } = await client.from("profiles").select("role").eq("id", me.user!.id).single();
+  expect(profile?.role).toBe("viewer");
+
+  // Leave the shared viewer account as it was found.
+  await client.from("profiles").update({ full_name: null }).eq("id", me.user!.id);
+});

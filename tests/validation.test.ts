@@ -140,3 +140,19 @@ describe("emailSchema", () => {
     expect(emailSchema.safeParse("nope").success).toBe(false);
   });
 });
+
+import { displayNameSchema } from "@/lib/validation";
+
+describe("displayNameSchema", () => {
+  test("trims and accepts a normal name", () => {
+    const r = displayNameSchema.safeParse("  Henry Monsanto ");
+    expect(r.success && r.data).toBe("Henry Monsanto");
+  });
+  test("rejects a blank name", () => {
+    expect(displayNameSchema.safeParse("   ").success).toBe(false);
+  });
+  test("rejects more than 80 characters", () => {
+    expect(displayNameSchema.safeParse("x".repeat(81)).success).toBe(false);
+    expect(displayNameSchema.safeParse("x".repeat(80)).success).toBe(true);
+  });
+});

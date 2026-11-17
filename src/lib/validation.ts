@@ -71,3 +71,5 @@ export const emailSchema = z.string().trim().email().max(254);
 export const newPasswordSchema = z
   .object({ password: z.string().min(12).max(72), confirm: z.string() })
   .refine((d) => d.password === d.confirm, { path: ["confirm"], message: "Passwords do not match" });
+
+export const displayNameSchema = z.string().trim().min(1).max(80);
