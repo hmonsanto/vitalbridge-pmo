@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/(auth)/login/actions";
 import { completionRate } from "@/domain/completion";
 import { AppShell } from "@/components/shell/AppShell";
+import { needsMfa } from "@/domain/roles";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -26,7 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         total: statuses.length,
       }}
       signOutAction={signOut}
-      recoveryReminder={session.role === "owner" && codes.data === 0}
+      recoveryReminder={needsMfa(session.role) && codes.data === 0}
     >
       {children}
     </AppShell>

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionRole } from "@/lib/auth";
+import { canEdit } from "@/domain/roles";
 import { recordAudit } from "@/lib/audit";
 import {
   baselineEntrySchema,
@@ -17,7 +18,7 @@ import type { FormState } from "./actions";
 const NOT_ALLOWED: FormState = { error: "Not allowed" };
 const SAVE_FAILED: FormState = { error: "Could not save the changes" };
 
-const isOwner = async () => (await getSessionRole()) === "owner";
+const mayEdit = async () => canEdit(await getSessionRole());
 const text = (v: FormDataEntryValue | null) => String(v ?? "").trim();
 const optional = (v: FormDataEntryValue | null) => text(v) || undefined;
 // Edits can touch any page (header completion, portfolio, calendar, tabs), so refresh everything.
@@ -27,7 +28,7 @@ type Table = "deliverables" | "risks" | "dependencies" | "baseline_entries";
 
 /** Deletes one row of a project-owned table. The project id in the filter stops a mismatched id from matching. */
 async function removeRow(table: Table, projectId: string, id: string): Promise<FormState> {
-  if (!(await isOwner())) return NOT_ALLOWED;
+  if (!(await mayEdit())) return NOT_ALLOWED;
   const supabase = await createClient();
   const { data, error } = await supabase.from(table).delete().eq("id", id).eq("project_id", projectId).select("id");
   if (error || !data?.length) return { error: "Could not delete" };
@@ -49,7 +50,7 @@ async function changeRow(table: Table, projectId: string, id: string, values: Re
 // ---- Hospital -------------------------------------------------------------------------------------
 
 export async function updateHospital(projectId: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await isOwner())) return NOT_ALLOWED;
+  if (!(await mayEdit())) return NOT_ALLOWED;
   const parsed = projectSchema.safeParse({ name: text(formData.get("name")), scenario: text(formData.get("scenario")), kind: "hospital" });
   if (!parsed.success) return { error: "Enter a name and choose a scenario" };
 
@@ -69,7 +70,7 @@ export async function updateHospital(projectId: string, _prev: FormState, formDa
 
 /** Deleting a hospital also deletes everything under it, so the exact name must be typed. */
 export async function deleteHospital(projectId: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await isOwner())) return NOT_ALLOWED;
+  if (!(await mayEdit())) return NOT_ALLOWED;
   const supabase = await createClient();
   const { data: project } = await supabase.from("projects").select("name").eq("id", projectId).eq("kind", "hospital").maybeSingle();
   if (!project) return { error: "Hospital not found" };
@@ -86,7 +87,7 @@ export async function deleteHospital(projectId: string, _prev: FormState, formDa
 // ---- Deliverables ---------------------------------------------------------------------------------
 
 export async function updateDeliverable(projectId: string, id: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await isOwner())) return NOT_ALLOWED;
+  if (!(await mayEdit())) return NOT_ALLOWED;
   const parsed = deliverableEditSchema.safeParse({
     name: text(formData.get("name")),
     phase: Number(formData.get("phase")),
@@ -113,7 +114,7 @@ export async function deleteDeliverable(projectId: string, id: string): Promise<
 // ---- Risks ----------------------------------------------------------------------------------------
 
 export async function updateRisk(projectId: string, id: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await isOwner())) return NOT_ALLOWED;
+  if (!(await mayEdit())) return NOT_ALLOWED;
   const parsed = riskSchema.safeParse({
     title: text(formData.get("title")),
     severity: text(formData.get("severity")),
@@ -133,7 +134,7 @@ export async function deleteRisk(projectId: string, id: string): Promise<FormSta
 // ---- Dependencies ---------------------------------------------------------------------------------
 
 export async function updateDependency(projectId: string, id: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await isOwner())) return NOT_ALLOWED;
+  if (!(await mayEdit())) return NOT_ALLOWED;
   const parsed = dependencyEditSchema.safeParse({
     title: text(formData.get("title")),
     type: text(formData.get("type")),
@@ -151,7 +152,7 @@ export async function deleteDependency(projectId: string, id: string): Promise<F
 // ---- Baseline entries (the month itself cannot change: delete and re-add instead) -------------------
 
 export async function updateBaselineEntry(projectId: string, id: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await isOwner())) return NOT_ALLOWED;
+  if (!(await mayEdit())) return NOT_ALLOWED;
   const parsed = baselineEntrySchema.pick({ baseline: true, actual: true }).safeParse({
     baseline: Number(formData.get("baseline")),
     actual: Number(formData.get("actual")),

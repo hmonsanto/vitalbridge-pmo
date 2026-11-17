@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionRole } from "@/lib/auth";
+import { canEdit } from "@/domain/roles";
 import type { GateDecision } from "@/domain/gates";
 import { HospitalView } from "./HospitalView";
 
@@ -39,7 +40,7 @@ export default async function HospitalPage({ params }: { params: Promise<{ id: s
       baseline={baseline.data ?? []}
       risks={risks.data ?? []}
       dependencies={dependencies.data ?? []}
-      isOwner={role === "owner"}
+      canEdit={canEdit(role)}
     />
   );
 }

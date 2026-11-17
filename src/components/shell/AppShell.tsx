@@ -2,13 +2,14 @@ import Link from "next/link";
 import { ShieldAlert } from "lucide-react";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { firstName } from "@/domain/person";
+import { isAdmin, type Role } from "@/domain/roles";
 import { CompletionCard } from "./CompletionCard";
 import { Motion } from "./Motion";
 import { Rail } from "./Rail";
 import { UserMenu } from "./UserMenu";
 
 type Props = {
-  user: { name: string; role: "owner" | "viewer"; hasName: boolean };
+  user: { name: string; role: Role; hasName: boolean };
   completion: { percent: number; done: number; total: number };
   signOutAction: () => void | Promise<void>;
   /** Owner has no recovery codes yet: remind them, because losing the authenticator would lock them out. */
@@ -25,7 +26,10 @@ export function AppShell({ user, completion, signOutAction, recoveryReminder = f
     <Motion>
       <div className="ambient" aria-hidden />
       <div className="flex min-h-screen flex-col md:flex-row">
-        <Rail footer={<UserMenu name={user.name} role={user.role} signOutAction={signOutAction} />} />
+        <Rail
+          showTeam={isAdmin(user.role)}
+          footer={<UserMenu name={user.name} role={user.role} signOutAction={signOutAction} />}
+        />
         <div className="min-w-0 flex-1 px-5 py-6 md:px-8">
           <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
             <div>

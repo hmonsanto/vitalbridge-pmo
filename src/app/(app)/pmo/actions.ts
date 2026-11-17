@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionRole } from "@/lib/auth";
+import { canEdit } from "@/domain/roles";
 import { recordAudit } from "@/lib/audit";
 import { PMO_GATES, type GateDecision } from "@/domain/gates";
 import type { FormState } from "@/app/(app)/hospitals/actions";
@@ -10,7 +11,7 @@ import type { FormState } from "@/app/(app)/hospitals/actions";
 const DECISIONS: GateDecision[] = ["go", "go_with_conditions", "replan", "stop"];
 
 export async function decidePmoGate(projectId: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if ((await getSessionRole()) !== "owner") return { error: "Not allowed" };
+  if (!canEdit(await getSessionRole())) return { error: "Not allowed" };
 
   const code = String(formData.get("gate") ?? "");
   const decision = String(formData.get("decision") ?? "") as GateDecision;
@@ -32,7 +33,7 @@ export async function decidePmoGate(projectId: string, _prev: FormState, formDat
 }
 
 export async function createPmoProject(): Promise<void> {
-  if ((await getSessionRole()) !== "owner") return;
+  if (!canEdit(await getSessionRole())) return;
   const supabase = await createClient();
   const { data: existing } = await supabase.from("projects").select("id").eq("kind", "pmo").maybeSingle();
   if (existing) return;

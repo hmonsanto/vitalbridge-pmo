@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { loginSchema } from "@/lib/validation";
 import { rateLimit } from "@/lib/rate-limit";
 import { recordAudit } from "@/lib/audit";
+import { needsMfa, parseRole } from "@/domain/roles";
 
 export type LoginState = { error?: string } | undefined;
 
@@ -30,7 +31,7 @@ export async function signIn(_prev: LoginState, formData: FormData): Promise<Log
   // Owners and anyone with an enrolled factor must pass TOTP; go straight to /mfa so the URL matches the page.
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
   const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  const mfaRequired = profile?.role === "owner" || aal?.nextLevel === "aal2";
+  const mfaRequired = needsMfa(parseRole(profile?.role)) || aal?.nextLevel === "aal2";
   redirect(mfaRequired ? "/mfa" : "/");
 }
 

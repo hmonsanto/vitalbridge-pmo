@@ -1,8 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { needsMfa, parseRole } from "@/domain/roles";
 import { SESSION_COOKIE_OPTIONS } from "./cookie-options";
 
-const GUARDED = ["/hospitals", "/pmo", "/calendar", "/todos", "/account", "/mfa"];
+const GUARDED = ["/hospitals", "/pmo", "/calendar", "/todos", "/account", "/team", "/mfa"];
 
 /** Only real app routes are guarded; unknown paths fall through to a plain 404 (no data to protect). */
 export function isGuardedPath(path: string): boolean {
@@ -42,11 +43,11 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   if (isLogin) return redirect("/");
 
   // A session already at aal2 (TOTP done) needs nothing else. Only aal1 sessions pay for the role lookup,
-  // which decides whether MFA is still required: owners always, anyone else who enrolled a factor.
+  // which decides whether MFA is still required: admins and editors always, anyone else who enrolled a factor.
   if (path !== "/mfa" && claims.aal !== "aal2") {
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", claims.sub).single();
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (profile?.role === "owner" || aal?.nextLevel === "aal2") return redirect("/mfa");
+    if (needsMfa(parseRole(profile?.role)) || aal?.nextLevel === "aal2") return redirect("/mfa");
   }
   return response;
 }

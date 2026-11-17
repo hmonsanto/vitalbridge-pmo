@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getSessionRole } from "@/lib/auth";
+import { canEdit } from "@/domain/roles";
 import { ProjectTabs } from "@/components/shell/ProjectTabs";
 
 export default async function HospitalsLayout({ children }: { children: React.ReactNode }) {
@@ -10,7 +11,7 @@ export default async function HospitalsLayout({ children }: { children: React.Re
   ]);
   return (
     <>
-      <ProjectTabs projects={data ?? []} canCreate={role === "owner"} />
+      <ProjectTabs projects={data ?? []} canCreate={canEdit(role)} />
       {children}
     </>
   );

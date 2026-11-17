@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getSessionRole } from "@/lib/auth";
+import { canEdit } from "@/domain/roles";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { DeliverablesTable } from "@/app/(app)/hospitals/[id]/DeliverablesTable";
@@ -19,14 +20,14 @@ const TONE = { go: "ok", go_with_conditions: "warn", replan: "warn", stop: "dang
 
 export default async function PmoPage() {
   const supabase = await createClient();
-  const isOwner = (await getSessionRole()) === "owner";
+  const mayEdit = canEdit(await getSessionRole());
 
   const { data: project } = await supabase.from("projects").select("id, name").eq("kind", "pmo").maybeSingle();
   if (!project) {
     return (
       <Card title="PMO workstream">
         <p className="text-sm text-[var(--muted)]">The PMO workstream has not been created yet.</p>
-        {isOwner && (
+        {mayEdit && (
           <form action={createPmoProject} className="mt-3">
             <button className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white">
               Create PMO workstream
@@ -64,15 +65,15 @@ export default async function PmoPage() {
             );
           })}
         </ul>
-        {isOwner && <PmoGateForm projectId={project.id} />}
+        {mayEdit && <PmoGateForm projectId={project.id} />}
       </Card>
 
       <Card title="Deliverables" delay={0.1}>
-        <DeliverablesTable projectId={project.id} rows={deliverables.data ?? []} editable={isOwner} />
-        {isOwner && <AddDeliverableForm projectId={project.id} />}
+        <DeliverablesTable projectId={project.id} rows={deliverables.data ?? []} editable={mayEdit} />
+        {mayEdit && <AddDeliverableForm projectId={project.id} />}
       </Card>
 
-      <RisksCard projectId={project.id} risks={risks.data ?? []} editable={isOwner} />
+      <RisksCard projectId={project.id} risks={risks.data ?? []} editable={mayEdit} />
     </div>
   );
 }

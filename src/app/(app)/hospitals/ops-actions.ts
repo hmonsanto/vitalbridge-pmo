@@ -3,16 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionRole } from "@/lib/auth";
+import { canEdit } from "@/domain/roles";
 import { recordAudit } from "@/lib/audit";
 import { riskSchema, dependencySchema, baselineEntrySchema } from "@/lib/validation";
 import type { FormState } from "./actions";
 
-async function requireOwner(): Promise<boolean> {
-  return (await getSessionRole()) === "owner";
+async function requireEditor(): Promise<boolean> {
+  return canEdit(await getSessionRole());
 }
 
 export async function addRisk(projectId: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await requireOwner())) return { error: "Not allowed" };
+  if (!(await requireEditor())) return { error: "Not allowed" };
   const parsed = riskSchema.safeParse({
     title: formData.get("title"),
     severity: formData.get("severity"),
@@ -37,7 +38,7 @@ export async function addRisk(projectId: string, _prev: FormState, formData: For
 }
 
 export async function addDependency(projectId: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await requireOwner())) return { error: "Not allowed" };
+  if (!(await requireEditor())) return { error: "Not allowed" };
   const parsed = dependencySchema.safeParse({
     title: formData.get("title"),
     type: formData.get("type"),
@@ -62,7 +63,7 @@ export async function addDependency(projectId: string, _prev: FormState, formDat
 }
 
 export async function markDependencyDone(projectId: string, dependencyId: string): Promise<void> {
-  if (!(await requireOwner())) return;
+  if (!(await requireEditor())) return;
   const supabase = await createClient();
   const { error } = await supabase.from("dependencies").update({ status: "done" }).eq("id", dependencyId);
   if (error) return;
@@ -74,7 +75,7 @@ export async function markDependencyDone(projectId: string, dependencyId: string
 }
 
 export async function addBaselineEntry(projectId: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await requireOwner())) return { error: "Not allowed" };
+  if (!(await requireEditor())) return { error: "Not allowed" };
 
   const month = String(formData.get("month") ?? ""); // <input type="month"> yields YYYY-MM
   const parsed = baselineEntrySchema.safeParse({

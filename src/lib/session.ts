@@ -2,7 +2,8 @@ import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { displayName } from "@/domain/person";
 
-export type Role = "owner" | "viewer";
+import type { Role } from "@/domain/roles";
+export type { Role };
 export type Session = {
   userId: string;
   role: Role | null;

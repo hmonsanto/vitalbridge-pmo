@@ -15,19 +15,22 @@ La metodología es la de los documentos del PMO: **cascada (waterfall) con puert
 
 ### Quién puede hacer qué
 
-| Rol | Qué puede hacer |
-|---|---|
-| **Owner** (Henry) | Ver y modificar todo: crear hospitales, registrar decisiones, cargar entregables, riesgos, dependencias, línea base, reuniones y to-dos. |
-| **Viewer** (Ned) | Solo ver. No aparece ningún botón ni formulario para modificar. |
+| Rol (como se ve en pantalla) | Qué puede hacer | Verificación en dos pasos |
+|---|---|---|
+| **Admin** | Todo lo del Editor, **más gestionar a las personas** (pantalla "Team"): roles, nombres, desactivar cuentas. Es el único que lee el registro de auditoría. | Obligatoria |
+| **Editor** | Crear, editar y borrar los datos de los proyectos: hospitales, decisiones, entregables, riesgos, dependencias, línea base, reuniones y to-dos. **No** gestiona personas. | Obligatoria |
+| **Viewer** | Solo ver. No aparece ningún botón ni formulario para modificar. | Opcional |
 
-Esto no es solo visual: la base de datos rechaza cualquier escritura de un Viewer, aunque se intente saltar la pantalla.
+Esto no es solo visual: la base de datos rechaza cualquier escritura que no corresponda al rol, aunque se intente saltar la pantalla. Todos los Editores y Viewers ven **todos** los hospitales (por ahora no hay acceso por hospital).
+
+> **Nota técnica:** en la base de datos el rol Admin se llama `owner`; es el mismo.
 
 ---
 
 ## 2. Primer ingreso y seguridad
 
 1. Abra la dirección e inicie sesión con su email y contraseña.
-2. **Owner:** el sistema lo lleva a una pantalla de **verificación en dos pasos (TOTP)**.
+2. **Admin y Editor:** el sistema los lleva a una pantalla de **verificación en dos pasos (TOTP)**.
    - La primera vez, escanee el código QR con una app de autenticación (Google Authenticator, Authy, 1Password).
    - **Guarde la clave secreta** que aparece bajo el QR en su gestor de contraseñas. Es su respaldo si pierde el teléfono.
    - Escriba el código de 6 dígitos y pulse "Verify".
@@ -35,7 +38,7 @@ Esto no es solo visual: la base de datos rechaza cualquier escritura de un Viewe
 3. **Viewer:** entra directo con email y contraseña. Si activa TOTP por su cuenta, también se le pedirá.
 
 **Buenas prácticas**
-- No comparta su usuario. Para que alguien más vea el tablero, cree una cuenta Viewer.
+- No comparta su usuario. Para que alguien más use el tablero, el Admin le crea su propia cuenta (ver "Team").
 - Cierre sesión ("Sign out", abajo en el riel lateral) en computadoras compartidas.
 - **No escriba datos de pacientes** en ningún campo. El sistema está diseñado solo para información comercial y de gestión.
 - Tras 5 intentos fallidos de contraseña en 15 minutos, el login se bloquea temporalmente.
@@ -65,11 +68,11 @@ La pantalla siempre responde lo mismo ("If an account exists…"), exista o no l
 
 ## 3. Cómo está organizada la pantalla
 
-**Riel lateral izquierdo (burdeos):** Portfolio · Hospitals · PMO · Calendar. En la parte de abajo está **su menú de usuario**: su nombre, sus iniciales y su rol (Owner o Viewer). Al pulsarlo se abre un menú con **"Account"** (nombre, contraseña y códigos de recuperación), el cambio de **modo claro/oscuro** (se recuerda) y **"Sign out"**. Se cierra con la tecla Esc o pulsando fuera.
+**Riel lateral izquierdo (burdeos):** Portfolio · Hospitals · PMO · Calendar, y **Team** (solo el Admin lo ve). En la parte de abajo está **su menú de usuario**: su nombre, sus iniciales y su rol (Admin, Editor o Viewer). Al pulsarlo se abre un menú con **"Account"** (nombre, contraseña y códigos de recuperación), el cambio de **modo claro/oscuro** (se recuerda) y **"Sign out"**. Se cierra con la tecla Esc o pulsando fuera.
 
 **Encabezado:** a la derecha, "Overall completion" muestra el porcentaje de **entregables completados** entre todos los proyectos (hospitales y PMO). Es un termómetro general, no una medida financiera.
 
-### Editar y borrar (solo Owner)
+### Editar y borrar (Admin y Editor)
 
 Casi todo lo que se carga se puede corregir o eliminar. En cada fila hay dos iconos pequeños:
 
@@ -224,9 +227,9 @@ Una sola pantalla para todo lo que tiene fecha, más la lista de pendientes.
 
 Haga clic en cualquier día: a la derecha se abre su detalle, con la lista de eventos (y un enlace "Open" a la dependencia en su hospital).
 
-**Solo Owner:** cada evento tiene su lápiz y su cubo de basura. Así puede cambiar la hora de una reunión, la fecha de un to-do o de una dependencia, o eliminarlos, sin salir del calendario.
+**Admin y Editor:** cada evento tiene su lápiz y su cubo de basura. Así puede cambiar la hora de una reunión, la fecha de un to-do o de una dependencia, o eliminarlos, sin salir del calendario.
 
-**Solo Owner:** debajo aparecen tres pestañas para agregar en ese día:
+**Admin y Editor:** debajo aparecen tres pestañas para agregar en ese día:
 - **Meeting:** título y hora ("Starts at", viene con las 9:00 del día elegido).
 - **To-do:** título y "Due date" (viene con el día elegido; puede borrarla).
 - **Dependency:** título, **Hospital**, tipo y fecha de vencimiento.
@@ -282,13 +285,13 @@ Muestra **todos** los pendientes, con o sin fecha (la grilla solo muestra los qu
 | **DEA** | Registro de la Drug Enforcement Administration, necesario para dispensar sustancias controladas. |
 | **DSH** | Hospitales con alta proporción de pacientes de bajos ingresos, el cliente objetivo. |
 | **Dependencia externa** | Algo que depende de un tercero y no del proyecto. |
-| **Owner / Viewer** | Rol con permisos de edición / de solo lectura. |
+| **Admin / Editor / Viewer** | Rol que gestiona personas y datos / que edita datos / de solo lectura. |
 
 ---
 
 ## 10. Preguntas frecuentes
 
-**No veo ningún botón para agregar o editar.** Está con un usuario Viewer. Solo el Owner puede modificar.
+**No veo ningún botón para agregar o editar.** Está con un usuario Viewer. Solo el Admin y los Editores pueden modificar. Pida al Admin que le cambie el rol si lo necesita.
 
 **El Portfolio muestra todo en 0.** Es normal al empezar: aún no hay datos. Cargue el PMO y su primer hospital.
 

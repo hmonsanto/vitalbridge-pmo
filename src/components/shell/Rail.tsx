@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Building2, CalendarDays, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { Building2, CalendarDays, LayoutDashboard, ShieldCheck, Users } from "lucide-react";
 import { BrandMark, BrandWordmark } from "@/components/brand/Brand";
 import { usePrefersReducedMotion } from "@/components/ui/usePrefersReducedMotion";
 
@@ -14,10 +14,13 @@ const NAV = [
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
 ];
 
+const TEAM = { href: "/team", label: "Team", icon: Users };
+
 /** Left navigation rail. The active pill slides between items (shared layout animation). */
-export function Rail({ footer }: { footer?: React.ReactNode }) {
+export function Rail({ footer, showTeam = false }: { footer?: React.ReactNode; showTeam?: boolean }) {
   const pathname = usePathname();
   const reduced = usePrefersReducedMotion();
+  const items = showTeam ? [...NAV, TEAM] : NAV;
   return (
     <aside className="rail sticky top-0 z-20 flex shrink-0 flex-row items-center gap-2 px-3 py-2 md:h-screen md:w-48 md:flex-col md:items-stretch md:gap-1 md:px-3 md:py-6">
       <div className="mb-0 flex items-center gap-2.5 px-2 md:mb-7">
@@ -26,7 +29,7 @@ export function Rail({ footer }: { footer?: React.ReactNode }) {
       </div>
 
       <nav aria-label="Main" className="flex flex-1 flex-row gap-1 overflow-x-auto md:flex-none md:flex-col">
-        {NAV.map(({ href, label, icon: Icon }) => {
+        {items.map(({ href, label, icon: Icon }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
             <Link

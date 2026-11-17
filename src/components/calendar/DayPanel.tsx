@@ -61,12 +61,12 @@ export function DayPanel({
   day,
   events,
   hospitals,
-  isOwner,
+  canEdit,
 }: {
   day: string;
   events: CalendarEvent[];
   hospitals: HospitalOption[];
-  isOwner: boolean;
+  canEdit: boolean;
 }) {
   return (
     <Card title={dayTitle(day)} className="scroll-mt-4">
@@ -88,13 +88,13 @@ export function DayPanel({
                     Open
                   </Link>
                 )}
-                {isOwner && <EventActions event={e} />}
+                {canEdit && <EventActions event={e} />}
               </span>
             </li>
           ))}
         </ul>
       )}
-      {isOwner && <DayForms key={day} day={day} hospitals={hospitals} />}
+      {canEdit && <DayForms key={day} day={day} hospitals={hospitals} />}
     </Card>
   );
 }

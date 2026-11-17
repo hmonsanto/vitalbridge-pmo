@@ -91,7 +91,26 @@ Do these **before** relying on them in production.
 6. **Try it.** Sign out, use "Forgot password?" with your own email, and complete the reset. Then sign in, open
    **Account**, and generate your recovery codes. Store them in your password manager.
 
-## 7. Local development
+## 7. Roles, names and adding people
+
+Migrations `0004_profile_name.sql` (display names) and `0005_roles_and_team.sql` (Admin/Editor/Viewer and the Team page) must reach the database **before** the code that uses them is published. Order matters:
+
+```bash
+npx supabase db push --remote --dry-run   # must list 0004_profile_name.sql and 0005_roles_and_team.sql
+npx supabase db push --remote
+git push                                   # only after the push above succeeds
+```
+
+Publishing the code first would break sign-in (the code reads `full_name`) and the Editor role. Your existing owner account keeps the database role `owner`, which the screens show as **Admin**.
+
+**Adding a person (manual, by design: the app holds no service-role key).**
+
+1. Supabase dashboard > **Authentication > Users > Add user** (or Invite user). Use their email and a strong temporary password, and tick auto-confirm.
+2. They appear in **Team** with role Viewer. The Admin sets their role and display name there.
+3. Editors and Admins are forced to set up an authenticator app at their first sign-in. Ask them to change the temporary password from **Account**, or send them "Forgot password?".
+4. To remove access, use **Deactivate** in Team (it signs them out and blocks sign-in; it can be reversed).
+
+## 8. Local development
 
 ```bash
 npx supabase start                                        # needs Docker Desktop

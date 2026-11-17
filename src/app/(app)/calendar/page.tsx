@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getSessionRole } from "@/lib/auth";
+import { canEdit } from "@/domain/roles";
 import { CalendarView, type UpcomingDependency } from "@/components/calendar/CalendarView";
 import type { CalendarEvent } from "@/components/calendar/types";
 import { groupByDay, monthGrid, monthKey, parseDay, parseMonth } from "@/domain/calendar";
@@ -122,7 +123,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       todos={allTodos.data ?? []}
       window340b={{ start: fmtDate(win.start), end: fmtDate(win.end), isOpen: win.isOpen }}
       hospitals={hospitals.data ?? []}
-      isOwner={role === "owner"}
+      canEdit={canEdit(role)}
     />
   );
 }

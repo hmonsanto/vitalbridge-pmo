@@ -19,11 +19,11 @@ export type HospitalViewData = {
   baseline: BaselineRow[];
   risks: RiskRow[];
   dependencies: DependencyRow[];
-  isOwner: boolean;
+  canEdit: boolean;
 };
 
 /** Pure view of one hospital: no data fetching, so it can be previewed and tested with plain data. */
-export function HospitalView({ project, phaseNames, gateByPhase, deliverables, baseline, risks, dependencies, isOwner }: HospitalViewData) {
+export function HospitalView({ project, phaseNames, gateByPhase, deliverables, baseline, risks, dependencies, canEdit }: HospitalViewData) {
   const id = project.id;
   const phase = project.current_phase;
   return (
@@ -31,7 +31,7 @@ export function HospitalView({ project, phaseNames, gateByPhase, deliverables, b
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--heading)]">{project.name}</h2>
         <Badge tone="info">Scenario {project.scenario}</Badge>
-        {isOwner && (
+        {canEdit && (
           <span className="flex items-center gap-0.5">
             <Dialog icon="edit" triggerLabel="Edit hospital" title="Edit hospital">
               <EditHospitalForm projectId={id} name={project.name} scenario={project.scenario} />
@@ -45,22 +45,22 @@ export function HospitalView({ project, phaseNames, gateByPhase, deliverables, b
 
       <Card title="Phases and gates">
         <Stepper phases={phaseNames} current={phase} gates={gateByPhase} />
-        {isOwner && phase <= 5 && <GateDecisionForm projectId={id} phase={phase} />}
+        {canEdit && phase <= 5 && <GateDecisionForm projectId={id} phase={phase} />}
       </Card>
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_410px]">
         <div>
           <Card title="Deliverables" delay={0.1}>
-            <DeliverablesTable projectId={id} rows={deliverables} editable={isOwner} />
-            {isOwner && <AddDeliverableForm projectId={id} />}
+            <DeliverablesTable projectId={id} rows={deliverables} editable={canEdit} />
+            {canEdit && <AddDeliverableForm projectId={id} />}
           </Card>
         </div>
-        <BaselinePanel projectId={id} rows={baseline} editable={isOwner} />
+        <BaselinePanel projectId={id} rows={baseline} editable={canEdit} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <RisksCard projectId={id} risks={risks} editable={isOwner} />
-        <DependenciesCard projectId={id} dependencies={dependencies} editable={isOwner} />
+        <RisksCard projectId={id} risks={risks} editable={canEdit} />
+        <DependenciesCard projectId={id} dependencies={dependencies} editable={canEdit} />
       </div>
     </div>
   );

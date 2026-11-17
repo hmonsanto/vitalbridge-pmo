@@ -5,11 +5,11 @@ import { useEffect, useId, useRef, useState } from "react";
 import { ChevronUp, LogOut, Moon, Sun, UserRound } from "lucide-react";
 import { initials } from "@/domain/person";
 
-const ROLE_LABEL = { owner: "Owner", viewer: "Viewer" } as const;
+import { roleLabel, type Role } from "@/domain/roles";
 
 type Props = {
   name: string;
-  role: keyof typeof ROLE_LABEL;
+  role: Role;
   signOutAction: () => void | Promise<void>;
 };
 
@@ -65,7 +65,7 @@ export function UserMenu({ name, role, signOutAction }: Props) {
         </span>
         <span className="hidden min-w-0 flex-1 md:block">
           <span data-testid="user-name" className="block truncate text-sm font-semibold text-white">{name}</span>
-          <span data-testid="user-role" className="block text-[11px] text-[#f3e6d8]/70">{ROLE_LABEL[role]}</span>
+          <span data-testid="user-role" className="block text-[11px] text-[#f3e6d8]/70">{roleLabel(role)}</span>
         </span>
         <ChevronUp size={15} className={`hidden shrink-0 text-white/70 transition-transform md:block ${open ? "" : "rotate-180"}`} />
       </button>
@@ -79,7 +79,7 @@ export function UserMenu({ name, role, signOutAction }: Props) {
         >
           <div className="px-3 pb-2 pt-1.5 md:hidden">
             <p className="truncate text-sm font-semibold text-[var(--heading)]">{name}</p>
-            <p className="text-[11px] text-[var(--muted)]">{ROLE_LABEL[role]}</p>
+            <p className="text-[11px] text-[var(--muted)]">{roleLabel(role)}</p>
           </div>
           <Link href="/account" role="menuitem" className={ITEM} onClick={() => setOpen(false)}>
             <UserRound size={16} />

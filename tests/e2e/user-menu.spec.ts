@@ -12,7 +12,7 @@ test.describe("owner", () => {
   test("shows who is signed in, using the start of the email until a name is set", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("user-name")).toHaveText("owner-e2e");
-    await expect(page.getByTestId("user-role")).toHaveText("Owner");
+    await expect(page.getByTestId("user-role")).toHaveText("Admin");
     await expect(page.getByTestId("welcome")).toHaveText("Welcome, owner-e2e");
     await expect(page.getByRole("link", { name: "Add your name" })).toBeVisible();
   });

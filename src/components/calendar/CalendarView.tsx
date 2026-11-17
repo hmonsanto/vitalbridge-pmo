@@ -21,7 +21,7 @@ export type CalendarViewData = {
   todos: TodoRow[];
   window340b: { start: string; end: string; isOpen: boolean };
   hospitals: HospitalOption[];
-  isOwner: boolean;
+  canEdit: boolean;
 };
 
 const monthTitle = (ym: YearMonth) =>
@@ -48,7 +48,7 @@ function Legend() {
 }
 
 /** Pure view of the calendar page: all data arrives as props, so it needs no database to render or test. */
-export function CalendarView({ ym, weeks, eventsByDay, today, selected, upcoming, todos, window340b, hospitals, isOwner }: CalendarViewData) {
+export function CalendarView({ ym, weeks, eventsByDay, today, selected, upcoming, todos, window340b, hospitals, canEdit }: CalendarViewData) {
   const key = monthKey(ym);
   return (
     <div className="space-y-4">
@@ -76,9 +76,9 @@ export function CalendarView({ ym, weeks, eventsByDay, today, selected, upcoming
         <MonthGrid monthKey={key} weeks={weeks} eventsByDay={eventsByDay} today={today} selected={selected} />
 
         <aside className="space-y-4">
-          {selected && <DayPanel day={selected} events={eventsByDay[selected] ?? []} hospitals={hospitals} isOwner={isOwner} />}
+          {selected && <DayPanel day={selected} events={eventsByDay[selected] ?? []} hospitals={hospitals} canEdit={canEdit} />}
 
-          <TodoPanel todos={todos} isOwner={isOwner} />
+          <TodoPanel todos={todos} canEdit={canEdit} />
 
           <Card title="340B registration window" delay={0.1}>
             <p className="text-sm">

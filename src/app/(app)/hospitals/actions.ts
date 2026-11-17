@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionRole } from "@/lib/auth";
+import { canEdit } from "@/domain/roles";
 import { recordAudit } from "@/lib/audit";
 import { projectSchema, deliverableSchema } from "@/lib/validation";
 import { canAdvance, type GateDecision } from "@/domain/gates";
@@ -12,12 +13,12 @@ export type FormState = { error?: string; ok?: boolean } | undefined;
 
 const NOT_ALLOWED: FormState = { error: "Not allowed" };
 
-async function requireOwner(): Promise<boolean> {
-  return (await getSessionRole()) === "owner";
+async function requireEditor(): Promise<boolean> {
+  return canEdit(await getSessionRole());
 }
 
 export async function createHospital(_prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await requireOwner())) return NOT_ALLOWED;
+  if (!(await requireEditor())) return NOT_ALLOWED;
 
   const name = String(formData.get("name") ?? "").trim();
   const scenario = String(formData.get("scenario") ?? "");
@@ -42,7 +43,7 @@ export async function createHospital(_prev: FormState, formData: FormData): Prom
 }
 
 export async function addDeliverable(projectId: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await requireOwner())) return NOT_ALLOWED;
+  if (!(await requireEditor())) return NOT_ALLOWED;
 
   const parsed = deliverableSchema.safeParse({
     name: formData.get("name"),
@@ -68,7 +69,7 @@ export async function addDeliverable(projectId: string, _prev: FormState, formDa
 }
 
 export async function setDeliverableStatus(projectId: string, deliverableId: string, status: string): Promise<FormState> {
-  if (!(await requireOwner())) return NOT_ALLOWED;
+  if (!(await requireEditor())) return NOT_ALLOWED;
   const parsed = deliverableSchema.shape.status.safeParse(status);
   if (!parsed.success) return { error: "Invalid status" };
 
@@ -86,7 +87,7 @@ export async function setDeliverableStatus(projectId: string, deliverableId: str
 const DECISIONS: GateDecision[] = ["go", "go_with_conditions", "replan", "stop"];
 
 export async function decideGate(projectId: string, _prev: FormState, formData: FormData): Promise<FormState> {
-  if (!(await requireOwner())) return NOT_ALLOWED;
+  if (!(await requireEditor())) return NOT_ALLOWED;
 
   const decision = String(formData.get("decision") ?? "") as GateDecision;
   if (!DECISIONS.includes(decision)) return { error: "Select a decision" };
